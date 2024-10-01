@@ -554,11 +554,20 @@ video {
   display: none;
 }
 
+.static {
+  position: static;
+}
+
 .flex {
   display: flex;
 }
 
 .border {
   border-width: 1px;
+}
+
+.text-blue-600 {
+  --tw-text-opacity: 1;
+  color: rgb(37 99 235 / var(--tw-text-opacity));
 }
 
