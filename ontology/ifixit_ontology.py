@@ -1,6 +1,5 @@
 from owlready2 import *
 
-
 onto = get_ontology("http://example.org/ifixit.owl")
 
 with onto:
@@ -38,14 +37,20 @@ with onto:
         pass
 
     # Object Properties
+
+    class is_subclass_of(ObjectProperty, TransitiveProperty):
+        """Defines a transitive subclass relationship among Items."""
+        domain = [Item]
+        range = [Item]
+
     class consists_of(ObjectProperty):
         """Procedure consists of steps."""
         domain = [Procedure]
         range = [Step]
 
     class uses_tool(ObjectProperty):
-        """Step uses tool."""
-        domain = [Step]
+        """Associates tools with Procedures and Steps."""
+        domain = [Procedure, Step]
         range = [Tool]
 
     class involves_part(ObjectProperty):
@@ -65,7 +70,7 @@ with onto:
 
     class part_of(ObjectProperty, TransitiveProperty):
         """Defines a transitive part-of relationship."""
-        domain = [Part, Procedure]
+        domain = [Item, Part, Procedure]
         range = [Item]
 
     class is_subcategory_of(ObjectProperty, TransitiveProperty):
@@ -78,10 +83,10 @@ with onto:
         domain = [Item]
         range = [DeviceCategory]
 
-    class has_action(ObjectProperty):
-        """Step has an action."""
-        domain = [Step]
-        range = [Action]
+    class has_subprocedure(ObjectProperty):
+        """Links a Procedure to its sub-procedures."""
+        domain = [Procedure]
+        range = [Procedure]
 
     # Data Properties
     class has_title(DataProperty, FunctionalProperty):
@@ -119,4 +124,5 @@ with onto:
         domain = [Step]
         range = [int]
 
+# Save the ontology to a file
 onto.save(file="ifixit_ontology.owl", format="rdfxml")
