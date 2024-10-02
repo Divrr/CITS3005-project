@@ -1,7 +1,9 @@
 <div class="join w-full max-w-xl">
     <input class="input input-bordered join-item w-full" placeholder="Search" />
-    <button class="btn join-item">
-        <img src="{{url_for('static',filename='src/search.svg')}}" alt="search" class="w-4 h-4 mr-2">
-    </button>
+    <a href="{{ url_for('search') }}">
+        <button class="btn join-item">
+            <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
+        </button>
+    </a>
 </div>
 <button class="btn mt-2">advanced search</button>
