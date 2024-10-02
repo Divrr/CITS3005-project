@@ -6,14 +6,8 @@
     <img src="{{url_for('static',filename='src/logo.svg')}}" alt="logo" class="w-72 mb-10">
 
     <!-- searchbar -->
-    <div class="w-full flex items-center justify-center">
-        <div class="join w-full max-w-lg">
-            <input class="input input-bordered join-item w-full" placeholder="Search" />
-            <button class="btn join-item">
-                <img src="{{url_for('static',filename='src/search.svg')}}" alt="search" class="w-4 h-4 mr-2">
-            </button>
-        </div>
-        <button class="btn ml-2">Advanced search</button>
+    <div class="w-full block md:flex items-center justify-center gap-2">
+        {% include 'searchbar.html' %}
     </div>
 </div>
 {% endblock %}
