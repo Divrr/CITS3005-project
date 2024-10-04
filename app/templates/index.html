@@ -1,13 +1,43 @@
-{% extends 'base.html' %}
-
-{% block body %}
+{% extends 'base.html' %} {% block body %}
 <div class="flex flex-col items-center justify-center h-screen m-0 font-sans">
-    <!-- logo -->
-    <img src="{{url_for('static',filename='src/logo.svg')}}" alt="logo" class="w-72 mb-10">
+  <!-- logo -->
+  <img
+    src="{{url_for('static',filename='src/logo.svg')}}"
+    alt="logo"
+    class="w-72 mb-10" />
 
-    <!-- searchbar -->
-    <div class="w-full block md:flex items-center justify-center gap-2">
-        {% include 'searchbar.html' %}
-    </div>
+  <!-- searchbar -->
+  <div class="w-full block md:flex items-center justify-center gap-2">
+    {% include 'searchbar.html' %}
+  </div>
+</div>
+
+<div class="flex flex-col items-center justify-center m-0 font-sans">
+  <!-- logo -->
+  <img
+    src="{{url_for('static',filename='src/logo.svg')}}"
+    alt="logo"
+    class="w-72 mb-10" />
+
+  <!-- searchbar -->
+  <div class="w-full block md:flex items-center justify-center gap-2">
+    {% include 'searchbar.html' %}
+  </div>
+
+  <!-- Procedures List -->
+  <div class="mt-10 w-full max-w-4xl">
+    <h2 class="text-2xl font-bold mb-4">Procedures</h2>
+    <ul class="list-disc pl-5">
+      {% for procedure in procedures %}
+      <li>
+        <a
+          href="{{ url_for('procedure_detail', procedure_id=procedure.name) }}"
+          class="text-blue-500 hover:underline">
+          {{ procedure.has_title[0] }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
 {% endblock %}

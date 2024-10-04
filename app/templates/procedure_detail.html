@@ -1,0 +1,82 @@
+<!-- templates/procedure_detail.html -->
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">{{ procedure.has_title[0] }}</h1>
+
+    <!-- Display any data errors -->
+    {% if missing_tools %}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Warning</p>
+        <p>The following tools are used in steps but not listed in the procedure's toolbox:</p>
+        <ul class="list-disc pl-5">
+            {% for tool in missing_tools %}
+                <li>{{ tool.has_title[0] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% if procedure.has_subprocedure %}
+    <h2 class="text-xl font-semibold mt-6">Sub-Procedures:</h2>
+    <ul class="list-disc pl-5">
+        {% for subprocedure in procedure.has_subprocedure %}
+            <li>
+                <a href="{{ url_for('procedure_detail', procedure_id=subprocedure.name) }}" class="text-blue-500 hover:underline">
+                    {{ subprocedure.has_title[0] }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if missing_tools %}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Data Error</p>
+        <p>The following tools are used in steps but not listed in the procedure's toolbox:</p>
+        <ul class="list-disc pl-5">
+            {% for tool in missing_tools %}
+                <li>{{ tool.has_title[0] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% if hazard_steps %}
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Potential Hazards</p>
+        <p>The following steps may contain hazards:</p>
+        <ul class="list-disc pl-5">
+            {% for step in hazard_steps %}
+                <li>Step {{ step.has_order[0] }}: {{ step.has_description[0] }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    
+    <h2 class="text-xl font-semibold mt-6">Steps:</h2>
+    <ol class="list-decimal pl-5">
+        {% for step in steps %}
+            <li class="mb-4">
+                <p><strong>Step {{ step.has_order[0] }}:</strong> {{ step.has_description[0] }}</p>
+                {% if step.has_action %}
+                    <p>Actions: {{ step.has_action | map(attribute='has_title[0]') | join(', ') }}</p>
+                {% endif %}
+                {% if step.involves_part %}
+                    <p>Parts Involved: {{ step.involves_part | map(attribute='has_title[0]') | join(', ') }}</p>
+                {% endif %}
+                {% if step.uses_tool %}
+                    <p>Tools Used: {{ step.uses_tool | map(attribute='has_title[0]') | join(', ') }}</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+
+    <h2 class="text-xl font-semibold mt-6">Tools Used in Procedure:</h2>
+    <ul class="list-disc pl-5">
+        {% for tool in procedure.uses_tool %}
+            <li>{{ tool.has_title[0] }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

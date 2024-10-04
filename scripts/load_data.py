@@ -169,7 +169,7 @@ with onto:
         tools_in_toolbox = set(procedure.uses_tool)
         missing_tools = tools_used_in_steps - tools_in_toolbox
         if missing_tools:
-            print(f"\nWarning: Procedure '{procedure.has_title[0]}' (ID: {procedure_id}) is missing the following tools in its toolbox:")
+            print(f"\nWarning: Procedure '{procedure.has_title}' (ID: {procedure_id}) is missing the following tools in its toolbox:")
             for tool in missing_tools:
                 print(f" - Tool: {tool.has_title[0]} (ID: {tool.name})")
             # Automatically add missing tools to procedure's toolbox

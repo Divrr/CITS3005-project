@@ -8,6 +8,18 @@
     <link rel="icon" href="https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-96x96.png" type="image/x-icon">
 </head>
 <body>
+    <body>
+    <!-- Navbar -->
+    <nav class="navbar p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="flex items-center">
+                <img src="{{ url_for('static', filename='src/logo.svg') }}" alt="logo" class="w-10 h-10 mr-2">
+                <span class="text-xl font-bold">iFixit Knowledge Graph</span>
+            </a>
+            {% include 'searchbar.html' %}
+        </div>
+    </nav>
+
     {% block body %}
     {% endblock %}
 </body>
