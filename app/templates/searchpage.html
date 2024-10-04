@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+    
+{% block body %}
+<nav class="navbar p-10 shadow-inner shadow-md">
+  <div class="hidden md:block w-20">
+    <a class="btn btn-ghost normal-case text-xl" href="/">
+      <img src="https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-96x96.png" alt="icon"></a>
+  </div>
+  <div class="w-full block md:flex items-center justify-center gap-2 mt-2">
+    {% include 'searchbar.html' %}
+    <label for="my-drawer" class="btn drawer-button lg:hidden">more</label>
+  </div>
+</nav>
+
+<div class="drawer lg:drawer-open">
+    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content flex flex-col items-center justify-center">
+      {% include 'content.html' %}
+    </div>
+    <div class="drawer-side">
+      <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+      <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
+        {% include 'sidebar.html' %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
