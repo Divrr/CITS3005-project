@@ -1,41 +1,32 @@
 # app/routes.py
 from flask import render_template, request
 from app import app
+from app.forms import SearchForm
 from app.ontology import onto
 
 @app.route('/')
 @app.route('/index')
 def index():
-    # Retrieve all Procedure instances
-    procedures = onto.Procedure.instances()
-    return render_template('index.html', title='Homepage', procedures=procedures)
+    form = SearchForm()
+    return render_template('index.html', title='Homepage', form=form)
 
-@app.route('/search_results')
+@app.route('/search_results', methods=['GET', 'POST'])
 def search_results():
-    query = request.args.get('query', '').lower().strip()
-    matching_procedures = []
+    form = SearchForm()
 
-    print(f"Search Query: {query}")
+    if not form.validate_on_submit():
+        return render_template('searchpage.html', title='Search', form=form, procedures=[])
+
+    # Search for procedures that contain the query string in their title
+    matching_procedures = []
+    query = form.query.data.lower()
     
     for procedure in onto.Procedure.instances():
-        procedure_title = procedure.has_title[0] if procedure.has_title and len(procedure.has_title) > 0 else '[No Title]'
-        item_title = ''
-        if procedure.part_of and len(procedure.part_of) > 0:
-            item_title = procedure.part_of[0].has_title[0] if procedure.part_of[0].has_title else '[No Item]'
-        
-        print(f"Checking Procedure: '{procedure_title}', Item: '{item_title}'")
-
-        combined_title = f"{procedure_title} {item_title}".lower()
-        print(f"Combined Title: '{combined_title}'")
-
-        if query in combined_title:
-            print(f"Match Found: '{combined_title}'")
-            matching_procedures.append(procedure)
-
-    if not matching_procedures:
-        print("No matching procedures found.")
+        if not procedure.has_title: continue
+        if query not in procedure.has_title.lower(): continue
+        matching_procedures.append(procedure)
     
-    return render_template('searchpage.html', title='Search Results', query=query, procedures=matching_procedures)
+    return render_template('searchpage.html', title='Search', form=form, procedures=matching_procedures)
 
 @app.route('/procedure/<procedure_id>')
 def procedure_detail(procedure_id):

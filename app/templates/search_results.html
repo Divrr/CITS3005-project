@@ -1,20 +1,21 @@
 <!-- search_results.html -->
 {% extends 'base.html' %} {% block body %}
-  <h1 class="text-2xl font-bold mb-4">Search Results for "{{ query }}"</h1>
+  <h1 class="text-2xl font-bold py-4">Search Results for "{{ query }}"</h1>
   {% if procedures %}
   <ul class="list-disc pl-5">
     {% for procedure in procedures %}
-    <li>
-      {% if procedure.has_title and procedure.has_title[0] %} {{
-      procedure.has_title[0] }}
-      <!-- Full title should be shown here -->
-      {% else %} [No Title] {% endif %} {% if procedure.part_of and
-      procedure.part_of[0] and procedure.part_of[0].has_title and
-      procedure.part_of[0].has_title %} ({{ procedure.part_of[0].has_title
-      }})
-      <!-- Show associated item title -->
-      {% else %} ([No Item]) {% endif %}
-    </li>
+      <li>
+        {% if procedure.has_title and procedure.has_title %}
+          {{procedure.has_title }}
+        {% else %}
+          [No Title]
+        {% endif %}
+        {% if procedure.part_of and procedure.part_of[0] and procedure.part_of[0].has_title %} 
+          ({{ procedure.part_of[0].has_title}})
+        {% else %} 
+          ([No Item]) 
+        {% endif %}
+      </li>
     {% endfor %}
   </ul>
   {% else %}
