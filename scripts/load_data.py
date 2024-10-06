@@ -17,14 +17,14 @@ print("Ontology URI:", ontology_uri)
 
 onto = get_ontology(ontology_uri).load(only_local=True, reload=True)
 
-# Verify 'has_url' property
-print("Verifying 'has_url' property:")
-has_url_property = onto.search_one(iri="*has_url")
-if has_url_property:
-    is_functional = FunctionalProperty in has_url_property.is_a
-    print(f"'has_url' is {'functional' if is_functional else 'non-functional'}")
+# Verify 'url' property
+print("Verifying 'url' property:")
+url_property = onto.search_one(iri="*url")
+if url_property:
+    is_functional = FunctionalProperty in url_property.is_a
+    print(f"'url' is {'functional' if is_functional else 'non-functional'}")
 else:
-    print("'has_url' property not found in the ontology.")
+    print("'url' property not found in the ontology.")
     
 def sanitize_id(s):
     if s:
@@ -71,7 +71,7 @@ with onto:
                 parent_item = onto.search_one(iri="*" + parent_item_id)
                 if not parent_item:
                     parent_item = onto.Item(parent_item_id)
-                    parent_item.title = parent_category.title[0]
+                    parent_item.title = parent_category.title
                 # Establish subclass_of relationship
                 item.subclass_of.append(parent_item)
 

@@ -31,7 +31,7 @@ def search_results():
         
         if not contains_query: continue
 
-        matching_procedures.append(procedure)
+        matching_procedures.append({"id": procedure.name, "title": procedure.title, "description": procedure.description})
     
     return render_template('searchpage.html', title='Search', form=form, procedures=matching_procedures, query=query)
 
@@ -43,7 +43,7 @@ def procedure_detail(procedure_id):
         return render_template('404.html'), 404
 
     # Gather data
-    steps = sorted(procedure.consists_of, key=lambda s: s.has_order[0])
+    steps = sorted(procedure.consists_of, key=lambda s: s.order)
 
     # Identify tools used in steps but missing in procedure's toolbox
     tools_in_toolbox = set(procedure.uses_tool)
@@ -57,7 +57,7 @@ def procedure_detail(procedure_id):
     hazard_steps = []
     hazard_keywords = ['careful', 'dangerous']
     for step in steps:
-        description = step.has_description[0].lower()
+        description = step.description.lower()
         if any(keyword in description for keyword in hazard_keywords):
             hazard_steps.append(step)
 

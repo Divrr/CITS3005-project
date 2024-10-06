@@ -89,9 +89,9 @@ SELECT ?procedure ?proc_title ?step ?step_order ?description
 WHERE {
   ?procedure rdf:type ifixit:Procedure .
   ?procedure ifixit:consists_of ?step .
-  ?procedure ifixit:has_title ?proc_title .
-  ?step ifixit:has_order ?step_order .
-  ?step ifixit:has_description ?description .
+  ?procedure ifixit:title ?proc_title .
+  ?step ifixit:order ?step_order .
+  ?step ifixit:description ?description .
   FILTER (regex(?description, "careful|dangerous", "i"))
 }
 ORDER BY ?procedure ?step_order
