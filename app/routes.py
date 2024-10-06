@@ -22,10 +22,10 @@ def search_results():
     query = form.query.data
     words = query.lower().split()
     for procedure in onto.Procedure.instances():
-        if not procedure.has_title: continue
+        if not procedure.title: continue
         contains_query = True
         for w in words:
-            if w not in procedure.has_title.lower():
+            if w not in procedure.title.lower():
                 contains_query = False
                 break
         
@@ -79,7 +79,7 @@ def procedures_with_many_steps():
     WHERE {
       ?procedure rdf:type ifixit:Procedure .
       ?procedure ifixit:consists_of ?step .
-      ?procedure ifixit:has_title ?title .
+      ?procedure ifixit:title ?title .
     }
     GROUP BY ?procedure ?title
     HAVING (COUNT(?step) > 6)

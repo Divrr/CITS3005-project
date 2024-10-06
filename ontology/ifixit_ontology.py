@@ -38,7 +38,7 @@ with onto:
 
     # Object Properties
 
-    class is_subclass_of(ObjectProperty, TransitiveProperty):
+    class subclass_of(ObjectProperty, TransitiveProperty):
         """Defines a transitive subclass relationship among Items."""
         domain = [Item]
         range = [Item]
@@ -58,12 +58,12 @@ with onto:
         domain = [Step]
         range = [Part]
 
-    class has_action(ObjectProperty):
+    class action(ObjectProperty):
         """Step has an action."""
         domain = [Step]
         range = [Action]
 
-    class has_image(ObjectProperty):
+    class image(ObjectProperty):
         """Associates images with items or steps."""
         domain = [Item, Step]
         range = [Image]
@@ -73,7 +73,7 @@ with onto:
         domain = [Item, Part, Procedure]
         range = [Item]
 
-    class is_subcategory_of(ObjectProperty, TransitiveProperty):
+    class subcategory_of(ObjectProperty, TransitiveProperty):
         """Defines the category hierarchy."""
         domain = [DeviceCategory]
         range = [DeviceCategory]
@@ -83,43 +83,43 @@ with onto:
         domain = [Item]
         range = [DeviceCategory]
 
-    class has_subprocedure(ObjectProperty):
+    class subprocedure(ObjectProperty):
         """Links a Procedure to its sub-procedures."""
         domain = [Procedure]
         range = [Procedure]
 
     # Data Properties
-    class has_title(DataProperty, FunctionalProperty):
+    class title(DataProperty, FunctionalProperty):
         """Title or name."""
         domain = [Thing]
         range = [str]
 
-    class has_description(DataProperty, FunctionalProperty):
+    class description(DataProperty, FunctionalProperty):
         """Text description."""
         domain = [Procedure, Step, Action]
         range = [str]
 
-    class has_order(DataProperty, FunctionalProperty):
+    class order(DataProperty, FunctionalProperty):
         """Order number in a sequence."""
         domain = [Step]
         range = [int]
 
-    class has_url(DataProperty, FunctionalProperty):
+    class url(DataProperty, FunctionalProperty):
         """URL link."""
         domain = [Item, Tool, Procedure, Image]
         range = [str]
 
-    class has_thumbnail(DataProperty, FunctionalProperty):
+    class thumbnail(DataProperty, FunctionalProperty):
         """Thumbnail image URL."""
         domain = [Tool, Image]
         range = [str]
 
-    class has_guidid(DataProperty, FunctionalProperty):
+    class guidid(DataProperty, FunctionalProperty):
         """Unique guide ID."""
         domain = [Procedure]
         range = [int]
 
-    class has_stepid(DataProperty, FunctionalProperty):
+    class stepid(DataProperty, FunctionalProperty):
         """Unique step ID."""
         domain = [Step]
         range = [int]

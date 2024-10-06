@@ -12,5 +12,5 @@ with onto:
 print(f"Ontology loaded with {len(list(onto.Procedure.instances()))} procedures.")
 
 for procedure in onto.Procedure.instances():
-    if procedure.has_title and "macbook" in procedure.has_title[0].lower():
-        print(f"Procedure found: {procedure.has_title[0]}")
+    if procedure.title and "macbook" in procedure.title.lower():
+        print(f"Procedure found: {procedure.title[0]}")

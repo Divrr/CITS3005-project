@@ -3,7 +3,7 @@
 
 {% block body %}
 <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">{{ procedure.has_title[0] }}</h1>
+    <h1 class="text-2xl font-bold mb-4">{{ procedure.title }}</h1>
 
     <!-- Display any data errors -->
     {% if missing_tools %}
@@ -12,7 +12,7 @@
         <p>The following tools are used in steps but not listed in the procedure's toolbox:</p>
         <ul class="list-disc pl-5">
             {% for tool in missing_tools %}
-                <li>{{ tool.has_title[0] }}</li>
+                <li>{{ tool.title }}</li>
             {% endfor %}
         </ul>
     </div>
@@ -23,7 +23,7 @@
         {% for subprocedure in procedure.has_subprocedure %}
             <li>
                 <a href="{{ url_for('procedure_detail', procedure_id=subprocedure.name) }}" class="text-blue-500 hover:underline">
-                    {{ subprocedure.has_title[0] }}
+                    {{ subprocedure.title }}
                 </a>
             </li>
         {% endfor %}
@@ -36,7 +36,7 @@
         <p>The following tools are used in steps but not listed in the procedure's toolbox:</p>
         <ul class="list-disc pl-5">
             {% for tool in missing_tools %}
-                <li>{{ tool.has_title[0] }}</li>
+                <li>{{ tool.title }}</li>
             {% endfor %}
         </ul>
     </div>
@@ -60,13 +60,13 @@
             <li class="mb-4">
                 <p><strong>Step {{ step.has_order[0] }}:</strong> {{ step.has_description[0] }}</p>
                 {% if step.has_action %}
-                    <p>Actions: {{ step.has_action | map(attribute='has_title[0]') | join(', ') }}</p>
+                    <p>Actions: {{ step.has_action | map(attribute='title') | join(', ') }}</p>
                 {% endif %}
                 {% if step.involves_part %}
-                    <p>Parts Involved: {{ step.involves_part | map(attribute='has_title[0]') | join(', ') }}</p>
+                    <p>Parts Involved: {{ step.involves_part | map(attribute='title') | join(', ') }}</p>
                 {% endif %}
                 {% if step.uses_tool %}
-                    <p>Tools Used: {{ step.uses_tool | map(attribute='has_title[0]') | join(', ') }}</p>
+                    <p>Tools Used: {{ step.uses_tool | map(attribute='title') | join(', ') }}</p>
                 {% endif %}
             </li>
         {% endfor %}
@@ -75,7 +75,7 @@
     <h2 class="text-xl font-semibold mt-6">Tools Used in Procedure:</h2>
     <ul class="list-disc pl-5">
         {% for tool in procedure.uses_tool %}
-            <li>{{ tool.has_title[0] }}</li>
+            <li>{{ tool.title }}</li>
         {% endfor %}
     </ul>
 </div>

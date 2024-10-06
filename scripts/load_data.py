@@ -33,7 +33,7 @@ def sanitize_id(s):
 
 # Open the sample data
 with open("data/Mac.json", 'r') as f:
-    data = [json.loads(line) for line in f]
+    data = [json.loads(line) for line in f][:100]
 
 with onto:
     # Wrap the data loop with tqdm
@@ -48,9 +48,9 @@ with onto:
             category = onto.search_one(iri="*" + category_id)
             if not category:
                 category = onto.DeviceCategory(category_id)
-                category.has_title = category_name
+                category.title = category_name
                 if previous_category:
-                    category.is_subcategory_of.append(previous_category)
+                    category.subcategory_of.append(previous_category)
             categories.append(category)
             previous_category = category
 
@@ -59,10 +59,10 @@ with onto:
         item = onto.search_one(iri="*" + item_id)
         if not item:
             item = onto.Item(item_id)
-            item.has_title = manual["Category"]
+            item.title = manual["Category"]
             item.belongs_to_category = [categories[-1]]
-            item.has_url = manual["Url"]
-            # Attempt to establish is_subclass_of relationships based on categories
+            item.url = manual["Url"]
+            # Attempt to establish subclass_of relationships based on categories
             if len(categories) > 1:
                 # The immediate parent category
                 parent_category = categories[-2]
@@ -71,18 +71,18 @@ with onto:
                 parent_item = onto.search_one(iri="*" + parent_item_id)
                 if not parent_item:
                     parent_item = onto.Item(parent_item_id)
-                    parent_item.has_title = parent_category.has_title[0]
-                # Establish is_subclass_of relationship
-                item.is_subclass_of.append(parent_item)
+                    parent_item.title = parent_category.title[0]
+                # Establish subclass_of relationship
+                item.subclass_of.append(parent_item)
 
         # Create Procedure instance
         procedure_id = f"Procedure_{manual['Guidid']}"
         procedure = onto.search_one(iri="*" + procedure_id)
         if not procedure:
             procedure = onto.Procedure(procedure_id)
-            procedure.has_title = manual["Title"]
-            procedure.has_url = manual["Url"]
-            procedure.has_guidid = manual["Guidid"]
+            procedure.title = manual["Title"]
+            procedure.url = manual["Url"]
+            procedure.guidid = manual["Guidid"]
             procedure.part_of = [item]
 
         # Create Tool instances and associate with procedure
@@ -96,9 +96,9 @@ with onto:
             tool = onto.search_one(iri="*" + tool_name_clean)
             if not tool:
                 tool = onto.Tool(tool_name_clean)
-                tool.has_title = tool_name
-                tool.has_url = tool_data["Url"]
-                tool.has_thumbnail = tool_data["Thumbnail"]
+                tool.title = tool_name
+                tool.url = tool_data["Url"]
+                tool.thumbnail = tool_data["Thumbnail"]
             tools.append(tool)
         procedure.uses_tool = tools
 
@@ -111,9 +111,9 @@ with onto:
             step = onto.search_one(iri="*" + step_id)
             if not step:
                 step = onto.Step(step_id)
-                step.has_order = step_data["Order"]
-                step.has_stepid = step_data["StepId"]
-                step.has_description = step_data["Text_raw"]
+                step.order = step_data["Order"]
+                step.stepid = step_data["StepId"]
+                step.description = step_data["Text_raw"]
                 procedure.consists_of.append(step)
 
             # Create Action instances and associate with step
@@ -125,8 +125,8 @@ with onto:
                 action = onto.search_one(iri="*" + action_name_clean)
                 if not action:
                     action = onto.Action(action_name_clean)
-                    action.has_title = action_name
-                step.has_action.append(action)
+                    action.title = action_name
+                step.action.append(action)
 
             # Create Part instances and associate with step
             for part_name in step_data.get("Word_level_parts_clean", []):
@@ -136,7 +136,7 @@ with onto:
                 part = onto.search_one(iri="*" + part_id)
                 if not part:
                     part = onto.Part(part_id)
-                    part.has_title = part_name
+                    part.title = part_name
                 step.involves_part.append(part)
                 # Establish part_of relationship between Part and Item
                 if item is not None and part is not None:
@@ -150,7 +150,7 @@ with onto:
                     tool = onto.search_one(iri="*" + tool_name_clean)
                     if not tool:
                         tool = onto.Tool(tool_name_clean)
-                        tool.has_title = tool_name
+                        tool.title = tool_name
                     step.uses_tool.append(tool)
                     tools_used_in_steps.add(tool)
 
@@ -162,16 +162,16 @@ with onto:
                 image = onto.search_one(iri="*" + image_id)
                 if not image:
                     image = onto.Image(image_id)
-                    image.has_url = image_url
-                step.has_image.append(image)
+                    image.url = image_url
+                step.image.append(image)
 
         # After processing steps, check if all tools used in steps are in the procedure's toolbox
         tools_in_toolbox = set(procedure.uses_tool)
         missing_tools = tools_used_in_steps - tools_in_toolbox
         if missing_tools:
-            print(f"\nWarning: Procedure '{procedure.has_title}' (ID: {procedure_id}) is missing the following tools in its toolbox:")
+            print(f"\nWarning: Procedure '{procedure.title}' (ID: {procedure_id}) is missing the following tools in its toolbox:")
             for tool in missing_tools:
-                print(f" - Tool: {tool.has_title[0]} (ID: {tool.name})")
+                print(f" - Tool: {tool.title} (ID: {tool.name})")
             # Automatically add missing tools to procedure's toolbox
             procedure.uses_tool.extend(missing_tools)
 
