@@ -33,7 +33,7 @@ def sanitize_id(s):
 
 # Open the sample data
 with open("data/Mac.json", 'r') as f:
-    data = [json.loads(line) for line in f][:100]
+    data = [json.loads(line) for line in f]
 
 with onto:
     # Wrap the data loop with tqdm
