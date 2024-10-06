@@ -1,24 +1,18 @@
 <!-- search_results.html -->
 {% extends 'base.html' %} {% block body %}
-  <h1 class="text-2xl font-bold py-4">Search Results for "{{ query }}"</h1>
-  {% if procedures %}
-  <ul class="list-disc pl-5">
-    {% for procedure in procedures %}
-      <li>
-        {% if procedure.has_title and procedure.has_title %}
-          {{procedure.has_title }}
-        {% else %}
-          [No Title]
-        {% endif %}
-        {% if procedure.part_of and procedure.part_of[0] and procedure.part_of[0].has_title %} 
-          ({{ procedure.part_of[0].has_title}})
-        {% else %} 
-          ([No Item]) 
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p>No procedures found matching your query.</p>
-  {% endif %}
+{% if procedures %}
+  <p class="text-lg font-light italic py-4">Found {{ procedures|length }} procedures matching "{{ query }}".</p>
+{% else %}
+  <p class="text-lg font-light italic py-4">No procedures found matching your query.</p>
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {% for procedure in procedures %}
+    <div class="card p-4 shadow-md transitionhover:-translate-y-0.5 hover:scale-105 duration-300">
+      <a class="text-lg font-semibold" href="{{ url_for('procedure_detail', procedure_id=procedure.id) }}"></a>
+        {{ procedure.has_title }}
+      </a>
+    </div>
+  {% endfor %}
+</div>
 {% endblock %}

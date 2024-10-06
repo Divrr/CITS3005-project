@@ -15,18 +15,25 @@ def search_results():
     form = SearchForm()
 
     if not form.validate_on_submit():
-        return render_template('searchpage.html', title='Search', form=form, procedures=[])
+        return render_template('searchpage.html', title='Search', form=form, procedures=[], query='')
 
     # Search for procedures that contain the query string in their title
     matching_procedures = []
-    query = form.query.data.lower()
-    
+    query = form.query.data
+    words = query.lower().split()
     for procedure in onto.Procedure.instances():
         if not procedure.has_title: continue
-        if query not in procedure.has_title.lower(): continue
+        contains_query = True
+        for w in words:
+            if w not in procedure.has_title.lower():
+                contains_query = False
+                break
+        
+        if not contains_query: continue
+
         matching_procedures.append(procedure)
     
-    return render_template('searchpage.html', title='Search', form=form, procedures=matching_procedures)
+    return render_template('searchpage.html', title='Search', form=form, procedures=matching_procedures, query=query)
 
 @app.route('/procedure/<procedure_id>')
 def procedure_detail(procedure_id):
