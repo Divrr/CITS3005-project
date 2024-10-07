@@ -114,8 +114,11 @@ with onto:
                 step.order = step_data["Order"]
                 step.stepid = step_data["StepId"]
                 step.description = step_data["Text_raw"]
+        
+            # Ensure the step is associated with the procedure
+            if step not in procedure.consists_of:
                 procedure.consists_of.append(step)
-
+        
             # Create Action instances and associate with step
             for action_data in step_data.get("Removal_verbs", []):
                 action_name = action_data.get("name")
@@ -127,7 +130,7 @@ with onto:
                     action = onto.Action(action_name_clean)
                     action.title = action_name
                 step.action.append(action)
-
+        
             # Create Part instances and associate with step
             for part_name in step_data.get("Word_level_parts_clean", []):
                 if not part_name:
@@ -141,7 +144,7 @@ with onto:
                 # Establish part_of relationship between Part and Item
                 if item is not None and part is not None:
                     part.part_of.append(item)
-
+        
             # Associate tools with step
             for tool_name in step_data.get("Tools_annotated", []):
                 if tool_name and tool_name != "NA":
@@ -153,7 +156,7 @@ with onto:
                         tool.title = tool_name
                     step.uses_tool.append(tool)
                     tools_used_in_steps.add(tool)
-
+        
             # Associate images with step
             for image_url in step_data.get("Images", []):
                 if not image_url:
@@ -164,6 +167,7 @@ with onto:
                     image = onto.Image(image_id)
                     image.url = image_url
                 step.image.append(image)
+
 
         # After processing steps, check if all tools used in steps are in the procedure's toolbox
         tools_in_toolbox = set(procedure.uses_tool)
