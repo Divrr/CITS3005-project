@@ -4,35 +4,119 @@ from app import app
 from app.forms import SearchForm
 from app.ontology import onto
 
-@app.route('/')
-@app.route('/index')
+def populate_facet_choices(form):
+    # Populate categories
+    form.categories.choices = [
+        (cat.title, cat.title) for cat in onto.DeviceCategory.instances() if cat.title
+    ]
+    # Populate tools
+    form.tools.choices = [
+        (tool.name, tool.title) for tool in onto.Tool.instances() if tool.title
+    ]
+    # Populate parts
+    form.parts.choices = [
+        (part.name, part.title) for part in onto.Part.instances() if part.title
+    ]
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
     form = SearchForm()
+    populate_facet_choices(form)
+    if form.validate_on_submit():
+        # Pass form data to the search_results route
+        return search_results()
     return render_template('index.html', title='Homepage', form=form)
+
+def get_all_subcategories(category):
+    subcategories = set()
+    to_visit = [category]
+    
+    while to_visit:
+        current = to_visit.pop()
+        subcategories.add(current)
+        # Find categories where 'subcategory_of' is current
+        for cat in onto.DeviceCategory.instances():
+            if current in cat.subcategory_of:
+                if cat not in subcategories:
+                    to_visit.append(cat)
+    return subcategories
+
 
 @app.route('/search_results', methods=['GET', 'POST'])
 def search_results():
     form = SearchForm()
+    populate_facet_choices(form)
 
-    if not form.validate_on_submit():
-        return render_template('searchpage.html', title='Search', form=form, procedures=[], query='')
+    if form.validate_on_submit():
+        # Form was submitted via POST
+        query = form.query.data.lower().strip() if form.query.data else ''
+        selected_categories = form.categories.data if form.categories.data else []
+        selected_tools = form.tools.data if form.tools.data else []
+        selected_parts = form.parts.data if form.parts.data else []
+    else:
+        # Form was not submitted or is invalid, handle GET request
+        query = request.args.get('query', '').lower().strip()
+        selected_categories = request.args.getlist('categories')
+        selected_tools = request.args.getlist('tools')
+        selected_parts = request.args.getlist('parts')
 
-    # Search for procedures that contain the query string in their title
+    # Initialize all_selected_category_names
+    all_selected_category_titles = set()
+
+    # Build a set of all selected category names
+    if selected_categories:
+        for cat_title in selected_categories:
+            category = onto.search_one(title=cat_title)
+            if category:
+                subcategories = get_all_subcategories(category)
+                # Collect names of all subcategories
+                for subcat in subcategories:
+                    all_selected_category_titles.add(subcat.title.lower())
+            else:
+                print(f"Category with name '{cat_title}' not found.")
+    else:
+        # If no categories are selected, we can include all categories or leave it empty
+        pass  # We'll leave it empty here
+
     matching_procedures = []
-    query = form.query.data
-    words = query.lower().split()
-    for procedure in onto.Procedure.instances():
-        if not procedure.title: continue
-        contains_query = True
-        for w in words:
-            if w not in procedure.title.lower():
-                contains_query = False
-                break
-        
-        if not contains_query: continue
 
-        matching_procedures.append({"id": procedure.name, "title": procedure.title, "description": procedure.description})
-    
+    for procedure in onto.Procedure.instances():
+        is_match = True
+
+        # Filter by query
+        if query:
+            procedure_title = procedure.title.lower() if procedure.title else ''
+            if query not in procedure_title:
+                is_match = False
+
+        # Filter by categories
+        if is_match and selected_categories:
+            item = procedure.part_of[0] if procedure.part_of else None
+            if item and item.belongs_to_category:
+                item_category_names = [cat.title.lower() for cat in item.belongs_to_category]
+                if not any(name in all_selected_category_titles for name in item_category_names):
+                    is_match = False
+            else:
+                is_match = False
+        # If no categories are selected, skip category filtering
+
+        # Filter by tools
+        if is_match and selected_tools:
+            procedure_tool_names = [tool.name for tool in procedure.uses_tool]
+            if not set(selected_tools).issubset(set(procedure_tool_names)):
+                is_match = False
+
+        # Filter by parts
+        if is_match and selected_parts:
+            parts_in_procedure = []
+            for step in procedure.consists_of:
+                parts_in_procedure.extend([part.name for part in step.involves_part])
+            if not set(selected_parts).issubset(set(parts_in_procedure)):
+                is_match = False
+
+        if is_match:
+            matching_procedures.append(procedure)
+
     return render_template('searchpage.html', title='Search', form=form, procedures=matching_procedures, query=query)
 
 @app.route('/procedure/<procedure_id>')

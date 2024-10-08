@@ -2,6 +2,7 @@
 
 {% block body %}
 <form action="{{ url_for('search_results') }}" method="post">
+  {{ form.hidden_tag() }}
   <!-- Navbar -->
   <nav class="navbar p-4 shadow-md flex justify-between items-center">
       <a href="{{ url_for('index') }}" class="flex gap-2 w-20">
@@ -9,7 +10,6 @@
         <p class="text-xl font-bold whitespace-nowrap items-center hidden lg:flex">iFixit KG</p>
       </a>
       <!-- Searchbar -->
-      {{ form.hidden_tag() }}
       <div class="container mx-auto w-1/2 md:flex items-center justify-center gap-2 join">
         {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
         <button type="submit" class="btn join-item">
@@ -22,12 +22,45 @@
   <div class="drawer lg:drawer-open">
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content container mx-auto w-5/6 my-10">
-        {% include 'search_results.html' %}
+        <!-- Search Results -->
+        {% if procedures %}
+          <p class="text-lg font-light italic py-4">Found {{ procedures|length }} procedures matching "{{ query }}".</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for procedure in procedures %}
+            <div class="card p-4 shadow-md transition hover:-translate-y-0.5 hover:scale-105 duration-300">
+              <a href="{{ url_for('procedure_detail', procedure_id=procedure.name) }}">
+                <p>{{ procedure.title }}</p>  
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-lg font-light italic py-4">No procedures found matching your query.</p>
+        {% endif %}
       </div>
       <div class="drawer-side">
         <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
         <ul class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-          {% include 'sidebar.html' %}
+          <!-- Facet Filters -->
+          <!-- Categories -->
+          <li>
+            <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.categories.label }}</label>
+            {{ form.categories(class="select select-bordered w-full", multiple="multiple") }}
+          </li>
+          <!-- Tools -->
+          <li class="mt-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.tools.label }}</label>
+            {{ form.tools(class="select select-bordered w-full", multiple="multiple") }}
+          </li>
+          <!-- Parts -->
+          <li class="mt-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.parts.label }}</label>
+            {{ form.parts(class="select select-bordered w-full", multiple="multiple") }}
+          </li>
+          <!-- Submit Button -->
+          <li class="mt-4">
+            <button type="submit" class="btn btn-primary w-full">Apply Filters</button>
+          </li>
         </ul>
       </div>
     </div>

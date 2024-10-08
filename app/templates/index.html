@@ -16,6 +16,19 @@
           <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
       </button>
     </div>
+
+    <!-- Facet Filters -->
+    <div class="container mx-auto w-1/2 mt-4">
+      <!-- Categories -->
+      <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.categories.label }}</label>
+      {{ form.categories(class="select select-bordered w-full", multiple="multiple") }}
+      <!-- Tools -->
+      <label class="block text-gray-700 text-sm font-bold mb-2 mt-4">{{ form.tools.label }}</label>
+      {{ form.tools(class="select select-bordered w-full", multiple="multiple") }}
+      <!-- Parts -->
+      <label class="block text-gray-700 text-sm font-bold mb-2 mt-4">{{ form.parts.label }}</label>
+      {{ form.parts(class="select select-bordered w-full", multiple="multiple") }}
+    </div>
   </div>
 </form>
 {% endblock %}
