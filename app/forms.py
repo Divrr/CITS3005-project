@@ -3,7 +3,7 @@ from wtforms import StringField, SelectMultipleField, SubmitField
 from wtforms.validators import DataRequired
 
 class SearchForm(FlaskForm):
-    query = StringField('Query', validators=[DataRequired()])
+    query = StringField('Query')
     categories = SelectMultipleField('Categories', choices=[], coerce=str)
     tools = SelectMultipleField('Tools', choices=[], coerce=str)
     parts = SelectMultipleField('Parts', choices=[], coerce=str)

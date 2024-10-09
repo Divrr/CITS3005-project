@@ -1,2 +1,18 @@
-<li>sidebar content</li>
-<li>sidebar content</li>
+<!-- Facet Filters -->
+{% for collapsible in [form.categories, form.tools, form.parts] %}
+<li class="collapse collapse-arrow">
+    <input type="checkbox" />
+    <label class="collapse-title text-gray-700 text-sm font-bold mb-2">{{ collapsible.label }}</label>
+    <div class="collapse-content">
+        {% for thing in collapsible %}
+            <div class="flex items-center mb-2">
+                <input type="checkbox" id="{{ thing.id }}" name="{{ thing.name }}" class="mr-2">
+                <label for="{{ thing.id }}" class="text-gray-700 text-sm">{{ thing.label }}</label>
+            </div>
+        {% endfor %}
+    </div>
+</li>
+{% endfor %}
+<li>
+    <button type="submit" class="btn btn-primary w-full">Apply Filters</button>
+</li>
