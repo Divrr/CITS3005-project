@@ -28,7 +28,7 @@ else:
     
 def sanitize_id(s):
     if s:
-        return s.replace('"', '').replace("'", '').replace(" ", "_").replace("&", "and").replace("<", "").replace(">", "").replace("/", "_")
+        return s.replace('"', '').replace("'", '').replace(" ", "_").replace("&", "and").replace("<", "").replace(">", "").replace("/", "_").strip("_").lower()
     return s
 
 # Open the sample data
@@ -129,7 +129,9 @@ with onto:
                 if not action:
                     action = onto.Action(action_name_clean)
                     action.title = action_name
-                step.action.append(action)
+
+                if action not in step.action:
+                    step.action.append(action)
         
             # Create Part instances and associate with step
             for part_name in step_data.get("Word_level_parts_clean", []):
