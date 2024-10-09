@@ -47,6 +47,9 @@ def search_results():
     form = SearchForm()
     populate_facet_choices(form)
 
+    for field in form:
+        print(f"Field: {field.name}, Data: {field.data}")
+    # Print all categories
     if form.validate_on_submit():
         # Form was submitted via POST
         query = form.query.data.lower().strip() if form.query.data else ''
@@ -81,41 +84,35 @@ def search_results():
     matching_procedures = []
 
     for procedure in onto.Procedure.instances():
-        is_match = True
-
         # Filter by query
-        if query:
-            procedure_title = procedure.title.lower() if procedure.title else ''
-            if query not in procedure_title:
-                is_match = False
+        if query and (not procedure.title or query not in procedure.title.lower()): 
+            continue
 
         # Filter by categories
-        if is_match and selected_categories:
+        # If item does not belong to at least one selected category title, skip it
+        if selected_categories:
             item = procedure.part_of[0] if procedure.part_of else None
-            if item and item.belongs_to_category:
-                item_category_names = [cat.title.lower() for cat in item.belongs_to_category]
-                if not any(name in all_selected_category_titles for name in item_category_names):
-                    is_match = False
-            else:
-                is_match = False
-        # If no categories are selected, skip category filtering
+            if not item or not item.belongs_to_category: 
+                continue
+
+            item_category_titles = {category.title.lower() for category in item.belongs_to_category}
+            if not item_category_titles.intersection(all_selected_category_titles):
+                continue
 
         # Filter by tools
-        if is_match and selected_tools:
-            procedure_tool_names = [tool.name for tool in procedure.uses_tool]
-            if not set(selected_tools).issubset(set(procedure_tool_names)):
-                is_match = False
+        if selected_tools:
+            procedure_tool_names = set(tool.name for tool in procedure.uses_tool)
+            if not set(selected_tools).issubset(procedure_tool_names): 
+                continue
 
         # Filter by parts
-        if is_match and selected_parts:
-            parts_in_procedure = []
-            for step in procedure.consists_of:
-                parts_in_procedure.extend([part.name for part in step.involves_part])
-            if not set(selected_parts).issubset(set(parts_in_procedure)):
-                is_match = False
+        if selected_parts:
+            # Extract parts involved in each step of the procedure
+            parts_in_procedure = set(part.name for step in procedure.consists_of for part in step.involves_part)
+            if not set(selected_parts).issubset(parts_in_procedure):
+                continue
 
-        if is_match:
-            matching_procedures.append(procedure)
+        matching_procedures.append(procedure)
 
     return render_template('searchpage.html', title='Search', form=form, procedures=matching_procedures, query=query)
 
