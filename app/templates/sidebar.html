@@ -6,7 +6,8 @@
     <div class="collapse-content">
         {% for thing in collapsible %}
             <div class="flex items-center mb-2">
-                <input type="checkbox" id="{{ thing.id }}" name="{{ thing.name }}" class="mr-2">
+                <input type="checkbox" id="{{ thing.id }}" name="{{ thing.name }}" value="{{ thing.data }}" 
+                       class="checkbox mr-2" {% if thing.checked %}checked{% endif %}>
                 <label for="{{ thing.id }}" class="text-gray-700 text-sm">{{ thing.label }}</label>
             </div>
         {% endfor %}
