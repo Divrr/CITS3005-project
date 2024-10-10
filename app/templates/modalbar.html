@@ -1,0 +1,30 @@
+<form id="modalbutton">
+    <button class="btn" form="modalbutton" onclick="modal.showModal()">more</button>
+</form>
+<dialog id="modal" class="modal w-screen">
+    <div class="modal-box w-11/12 max-w-5xl max-h-96">
+        <div class="flex max-h-72">
+            {% for collapsible in [form.categories, form.tools, form.parts] %}
+            <div class="container overflow-scroll">
+                <label class="text-gray-700 text-md font-bold">{{ collapsible.label }}</label>
+                <!-- for some reason the title can't have a margin?? from the rest?? -->
+                <div class="my-4 flex flex-col items-start mb-2">
+                    {% for thing in collapsible %}
+                    <div>
+                        <input type="checkbox" id="{{ thing.id }}" name="{{ thing.name }}" value="{{ thing.data }}" 
+                        class="checkbox mr-2" {% if thing.checked %}checked{% endif %}>
+                        <label for="{{ thing.id }}" class="text-gray-700 text-sm">{{ thing.label }}</label>
+                    </div>
+                    {% endfor %}
+                </div> 
+            </div>
+            {% endfor %}
+        </div>
+        <div class="flex justify-end">
+            <form method="dialog" class="btn btn-secondary" id="modalclose">
+              <button form="modalclose">close</button>
+            </form>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </div>
+    </div>
+</dialog>

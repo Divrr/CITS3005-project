@@ -1,8 +1,8 @@
 {% extends 'base.html' %} 
 {% block body %}
-<form action="{{ url_for('search_results') }}" method="post">
+<form action="{{ url_for('search_results') }}" method="post" id="searchform">
   {{ form.hidden_tag() }}
-  <div class="flex flex-col items-center justify-center h-screen m-0 font-sans">
+  <div class="flex flex-col items-center justify-center h-screen m-0 font-sans gap-3">
     <!-- logo -->
     <img
       src="{{url_for('static',filename='src/logo.svg')}}"
@@ -10,25 +10,16 @@
       class="w-72 mb-10" />
   
     <!-- searchbar -->
-    <div class="container mx-auto w-1/2 md:flex items-center justify-center gap-2 join">
-      {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
-      <button type="submit" class="btn join-item">
+    <div class="container w-1/2 md:flex items-center justify-center gap-2">
+      <div class="gap-2 join w-full">
+        {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
+        <button type="submit" from="searchform" class="btn join-item">
           <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
-      </button>
-    </div>
-
-    <!-- Facet Filters -->
-    <div class="container mx-auto w-1/2 mt-4">
-      <!-- Categories -->
-      <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.categories.label }}</label>
-      {{ form.categories(class="select select-bordered w-full", multiple="multiple") }}
-      <!-- Tools -->
-      <label class="block text-gray-700 text-sm font-bold mb-2 mt-4">{{ form.tools.label }}</label>
-      {{ form.tools(class="select select-bordered w-full", multiple="multiple") }}
-      <!-- Parts -->
-      <label class="block text-gray-700 text-sm font-bold mb-2 mt-4">{{ form.parts.label }}</label>
-      {{ form.parts(class="select select-bordered w-full", multiple="multiple") }}
+        </button>
+      </div>
+      {% include 'modalbar.html' %}
     </div>
   </div>
 </form>
+
 {% endblock %}
