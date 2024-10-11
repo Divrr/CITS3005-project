@@ -1,0 +1,32 @@
+<!-- templates/guides.html -->
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container mx-auto p-6">
+    {% if category %}
+        <a href="{{ url_for('category_detail', category_title=category.title) }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to {{ category.title }}</a>
+    {% endif %}
+    <h1 class="text-4xl font-bold mb-6 text-center text-gray-800">{{ category.title }} Guides</h1>
+
+    {% if procedures %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for procedure in procedures %}
+                <a href="{{ url_for('procedure_detail', guidid=procedure.guidid) }}" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4">
+                    <div class="flex items-center justify-center h-24 mb-4">
+                        <!-- Procedure Image -->
+                        {% if procedure.image %}
+                            <img src="{{ procedure.image[0].url }}" alt="{{ procedure.title }}" class="max-h-full">
+                        {% else %}
+                            <!-- Placeholder Image -->
+                            <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No Image" class="max-h-full">
+                        {% endif %}
+                    </div>
+                    <h2 class="text-xl font-semibold text-center">{{ procedure.title }}</h2>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-gray-600">No guides available for this category.</p>
+    {% endif %}
+</div>
+{% endblock %}

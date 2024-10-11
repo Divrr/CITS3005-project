@@ -1,10 +1,14 @@
 # app/routes.py
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 from app import app
 from app.forms import SearchForm
 from app.ontology import onto
+import logging
 
-def populate_facet_choices(form, selected_categories=None, selected_tools=None, selected_parts=None):
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+def populate_facet_choices(form=None):
     # Initialize counts
     category_counts = {}
     tool_counts = {}
@@ -34,23 +38,24 @@ def populate_facet_choices(form, selected_categories=None, selected_tools=None, 
             part_title = part.title
             part_counts[part_title] = part_counts.get(part_title, 0) + 1
 
-    # Populate categories with counts
-    form.categories.choices = [
-        (cat.title, f"{cat.title} ({category_counts.get(cat.title, 0)})")
-        for cat in onto.DeviceCategory.instances() if cat.title
-    ]
+    if form:
+        # Populate categories with counts
+        form.categories.choices = [
+            (cat.title, f"{cat.title} ({category_counts.get(cat.title, 0)})")
+            for cat in onto.DeviceCategory.instances() if cat.title
+        ]
 
-    # Populate tools with counts
-    form.tools.choices = [
-        (tool.title, f"{tool.title} ({tool_counts.get(tool.title, 0)})")
-        for tool in onto.Tool.instances() if tool.title
-    ]
+        # Populate tools with counts
+        form.tools.choices = [
+            (tool.title, f"{tool.title} ({tool_counts.get(tool.title, 0)})")
+            for tool in onto.Tool.instances() if tool.title
+        ]
 
-    # Populate parts with counts
-    form.parts.choices = [
-        (part.title, f"{part.title} ({part_counts.get(part.title, 0)})")
-        for part in onto.Part.instances() if part.title
-    ]
+        # Populate parts with counts
+        form.parts.choices = [
+            (part.title, f"{part.title} ({part_counts.get(part.title, 0)})")
+            for part in onto.Part.instances() if part.title
+        ]
 
     return category_hierarchy, category_counts
 
@@ -90,44 +95,50 @@ def index():
     form = SearchForm()
     category_hierarchy, category_counts = populate_facet_choices(form)
     if form.validate_on_submit():
-        # Pass form data to the search_results route
-        return search_results()
-    return render_template('index.html', title='Homepage', form=form)
+        # Handle form submission from sidebar if needed
+        return redirect(url_for('search_results'))
+    return render_template(
+        'index.html',
+        title='Homepage',
+        form=form,
+        category_hierarchy=category_hierarchy,
+        category_counts=category_counts
+    )
 
 def get_all_subcategories(category):
+    """Recursively get all subcategories of a given category."""
     subcategories = set()
     to_visit = [category]
 
     while to_visit:
         current = to_visit.pop()
-        subcategories.add(current)
-        # Find categories where 'subcategory_of' is current
-        for cat in onto.DeviceCategory.instances():
-            if current in cat.subcategory_of:
-                if cat not in subcategories:
-                    to_visit.append(cat)
+        for subcat in onto.DeviceCategory.instances():
+            if current in subcat.subcategory_of and subcat not in subcategories:
+                subcategories.add(subcat)
+                to_visit.append(subcat)
     return subcategories
-
 
 @app.route('/search_results', methods=['GET', 'POST'])
 def search_results():
     form = SearchForm(request.form)
 
-    # Update form choices with counts and get category hierarchy
+    # Populate form choices before validation
     category_hierarchy, category_counts = populate_facet_choices(form)
 
     if form.validate_on_submit():
-        # Form was submitted via POST and is valid
+        # Handle POST request with form data
         query = form.query.data.lower().strip() if form.query.data else ''
         selected_categories = form.categories.data if form.categories.data else []
         selected_tools = form.tools.data if form.tools.data else []
         selected_parts = form.parts.data if form.parts.data else []
+        logging.info(f"POST Request - Query: '{query}', Categories: {selected_categories}, Tools: {selected_tools}, Parts: {selected_parts}")
     else:
-        # Handle GET request or form validation failed
+        # Handle GET request or form validation failure
         query = request.args.get('query', '').lower().strip()
         selected_categories = request.args.getlist('categories')
         selected_tools = request.args.getlist('tools')
         selected_parts = request.args.getlist('parts')
+        logging.info(f"GET Request - Query: '{query}', Categories: {selected_categories}, Tools: {selected_tools}, Parts: {selected_parts}")
 
     # Build a set of all selected category titles and their subcategories
     all_selected_category_titles = set()
@@ -141,7 +152,7 @@ def search_results():
                 for subcat in subcategories:
                     all_selected_category_titles.add(subcat.title.lower())
             else:
-                print(f"Category with title '{cat_title}' not found.")
+                app.logger.warning(f"Category with title '{cat_title}' not found.")
 
     matching_procedures = []
 
@@ -185,13 +196,110 @@ def search_results():
         category_counts=category_counts
     )
 
-@app.route('/procedure/<procedure_id>')
-def procedure_detail(procedure_id):
-    # Get the Procedure instance
-    procedure = onto.search_one(iri="*" + procedure_id)
-    if not procedure:
+@app.route('/categories', methods=['GET', 'POST'])
+def categories_home():
+    form = SearchForm()
+    category_hierarchy, category_counts = populate_facet_choices(form)
+    if form.validate_on_submit():
+        # Handle form submission from sidebar if needed
+        return redirect(url_for('search_results'))
+    
+    # Find top-level categories (categories without any parent)
+    top_categories = [cat for cat in onto.DeviceCategory.instances() if not cat.subcategory_of]
+    return render_template(
+        'categories.html',
+        form=form,
+        categories=top_categories,
+        parent=None,
+        category_hierarchy=category_hierarchy,
+        category_counts=category_counts
+    )
+
+
+@app.route('/categories/<category_title>', methods=['GET', 'POST'])
+def category_detail(category_title):
+    # Normalize the category title for case-insensitive matching
+    decoded_title = category_title.lower()
+    
+    # Perform a case-insensitive search for the category
+    category = next(
+        (cat for cat in onto.DeviceCategory.instances() if cat.title and cat.title.lower() == decoded_title),
+        None
+    )
+    
+    if not category:
+        app.logger.error(f"Category with title '{category_title}' not found.")
         return render_template('404.html'), 404
 
+    # **Identify the Parent Category**
+    parent_categories = list(category.subcategory_of)
+    if parent_categories:
+        parent_category = parent_categories[0]  # Assuming single parent for simplicity
+        app.logger.info(f"Parent category for '{category.title}' is '{parent_category.title}'")
+    else:
+        parent_category = None
+        app.logger.info(f"Category '{category.title}' has no parent (it's a top-level category).")
+
+    # Initialize the search form and populate facet choices
+    form = SearchForm()
+    category_hierarchy, category_counts = populate_facet_choices(form)
+    
+    if form.validate_on_submit():
+        # Handle form submission from sidebar if needed
+        return redirect(url_for('search_results'))
+    
+    # **Retrieve Subcategories**
+    subcategories = [sub for sub in onto.DeviceCategory.instances() if category in sub.subcategory_of]
+    
+    if subcategories:
+        # **Render Subcategories Page**
+        return render_template(
+            'categories.html',
+            form=form,
+            categories=subcategories,
+            parent=parent_category,  # Pass the actual parent category
+            category_hierarchy=category_hierarchy,
+            category_counts=category_counts
+        )
+    else:
+        # **Render Guides Page if No Subcategories Exist**
+        all_subcategories = get_all_subcategories(category)
+        all_categories = all_subcategories.union({category})
+        
+        # Find all Items that belong to these categories
+        items = [item for item in onto.Item.instances() if any(cat in item.belongs_to_category for cat in all_categories)]
+        
+        # Find all Procedures linked to these Items via 'part_of'
+        procedures = [proc for proc in onto.Procedure.instances() if proc.part_of and proc.part_of[0] in items]
+        
+        # Debugging Statements
+        app.logger.info(f"Found {len(procedures)} procedures for category '{category.title}' and its subcategories.")
+        for proc in procedures:
+            app.logger.info(f"Procedure: {proc.title}")
+        
+        return render_template(
+            'guides.html',
+            form=form,
+            procedures=procedures,
+            category=category,
+            category_hierarchy=category_hierarchy,
+            category_counts=category_counts
+        )
+@app.route('/procedure/<int:guidid>', methods=['GET', 'POST'])
+def procedure_detail(guidid):
+    # Search for procedure by guidid
+    procedure = onto.search_one(guidid=guidid)
+    
+    if not procedure:
+        app.logger.error(f"Procedure with guidid '{guidid}' not found.")
+        return render_template('404.html'), 404
+
+    form = SearchForm()
+    category_hierarchy, category_counts = populate_facet_choices(form)
+    if form.validate_on_submit():
+        # Handle form submission from sidebar if needed
+        return redirect(url_for('search_results'))
+    
     # Gather data
     steps = sorted(procedure.consists_of, key=lambda s: s.order)
 
@@ -211,7 +319,25 @@ def procedure_detail(procedure_id):
         if any(keyword in description for keyword in hazard_keywords):
             hazard_steps.append(step)
 
-    return render_template('procedure_detail.html', procedure=procedure, steps=steps, missing_tools=missing_tools, hazard_steps=hazard_steps)
+    # Retrieve the associated category via the 'part_of' relationship
+    if procedure.part_of and procedure.part_of[0].belongs_to_category:
+        category = procedure.part_of[0].belongs_to_category[0]  # Assuming single category
+        app.logger.info(f"Procedure '{procedure.title}' is linked to category '{category.title}'.")
+    else:
+        category = None  # Handle cases where category is not found
+        app.logger.warning(f"Procedure '{procedure.title}' is not linked to any category.")
+
+    return render_template(
+        'procedure_detail.html',
+        form=form,
+        procedure=procedure,
+        steps=steps,
+        missing_tools=missing_tools,
+        hazard_steps=hazard_steps,
+        category=category,
+        category_hierarchy=category_hierarchy,
+        category_counts=category_counts
+    )
 
 @app.route('/procedures_with_many_steps')
 def procedures_with_many_steps():
@@ -245,4 +371,17 @@ def procedures_with_many_steps():
         num_steps = int(row.num_steps)
         procedures.append({'id': procedure_id, 'title': title, 'num_steps': num_steps})
 
-    return render_template('procedures_with_many_steps.html', title='Procedures with Many Steps', procedures=procedures)
+    form = SearchForm()
+    category_hierarchy, category_counts = populate_facet_choices(form)
+    if form.validate_on_submit():
+        # Handle form submission from sidebar if needed
+        return redirect(url_for('search_results'))
+    
+    return render_template(
+        'procedures_with_many_steps.html',
+        form=form,
+        title='Procedures with Many Steps',
+        procedures=procedures,
+        category_hierarchy=category_hierarchy,
+        category_counts=category_counts
+    )

@@ -1,19 +1,49 @@
-<!-- templates/category_tree.html -->
-{% macro render_category(category_title, data, form, category_counts) %}
-<div class="pl-4">
-    <div class="flex items-center mb-2">
-        <input type="checkbox" id="{{ category_title|replace(' ', '_') }}" name="categories" value="{{ data.category.title }}"
-               class="checkbox mr-2" {% if data.category.title in form.categories.data %}checked{% endif %}>
-        <label for="{{ category_title|replace(' ', '_') }}" class="text-gray-700 text-sm">
-            {{ data.category.title }} ({{ category_counts.get(data.category.title, 0) }})
-        </label>
-    </div>
-    {% if data.subcategories %}
-        <div class="pl-4">
-            {% for subcategory_title, sub_data in data.subcategories.items() %}
-                {{ render_category(subcategory_title, sub_data, form, category_counts) }}
-            {% endfor %}
-        </div>
+{# templates/category_tree.html #}
+{% macro render_category(category_title, data, form, category_counts, parent_id='') %}
+    {# Generate a unique identifier based on the category hierarchy #}
+    {% set sanitized_title = category_title | replace(' ', '-') | replace('"', '') %}
+    {% if parent_id %}
+        {% set unique_id = parent_id ~ '-' ~ sanitized_title %}
+    {% else %}
+        {% set unique_id = sanitized_title %}
     {% endif %}
-</div>
+
+    <div class="ml-4">
+        <!-- Category Selection Checkbox -->
+        <div class="flex items-center mb-2">
+            <input 
+                type="checkbox" 
+                id="category-{{ unique_id }}" 
+                name="categories" 
+                value="{{ category_title }}" 
+                class="checkbox mr-2" 
+                {% if category_title in (form.categories.data | default([])) %}checked{% endif %}>
+            <label for="category-{{ unique_id }}" class="text-gray-700 text-sm">
+                {{ category_title }} ({{ category_counts.get(category_title, 0) }})
+            </label>
+
+            {# Collapse Toggle (only if subcategories exist) #}
+            {% if data.subcategories %}
+                <input type="checkbox" id="collapse-{{ unique_id }}" class="hidden peer" />
+                <label for="collapse-{{ unique_id }}" class="ml-auto cursor-pointer">
+                    <svg class="w-4 h-4 text-gray-700 transition-transform duration-300 transform peer-checked:rotate-180" 
+                         fill="none" 
+                         stroke="currentColor" 
+                         viewBox="0 0 24 24" 
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </label>
+            {% endif %}
+        </div>
+
+        {# Subcategories (if any) #}
+        {% if data.subcategories %}
+            <div class="overflow-hidden transition-max-height duration-500 ease-in-out max-h-0 peer-checked:max-h-screen">
+                {% for subcategory_title, subdata in data.subcategories.items() %}
+                    {{ render_category(subcategory_title, subdata, form, category_counts, unique_id) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endmacro %}
