@@ -3,25 +3,30 @@
 
 {% block body %}
 <div class="container mx-auto p-6">
-    {% if category %}
-        <a href="{{ url_for('category_detail', category_title=category.title) }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to {{ category.title }}</a>
+    {% if parent %}
+        <a href="{{ url_for('category_detail', category_title=parent.title) }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to {{ parent.title }}</a>
+    {% else %}
+        <a href="{{ url_for('index') }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to Home</a>
     {% endif %}
+    
     <h1 class="text-4xl font-bold mb-6 text-center text-gray-800">{{ category.title }} Guides</h1>
 
     {% if procedures %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {% for procedure in procedures %}
-                <a href="{{ url_for('procedure_detail', guidid=procedure.guidid) }}" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4">
-                    <div class="flex items-center justify-center h-24 mb-4">
-                        <!-- Procedure Image -->
-                        {% if procedure.image %}
-                            <img src="{{ procedure.image[0].url }}" alt="{{ procedure.title }}" class="max-h-full">
-                        {% else %}
-                            <!-- Placeholder Image -->
-                            <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No Image" class="max-h-full">
-                        {% endif %}
+                <a href="{{ url_for('procedure_detail', guidid=procedure.guidid) }}" class="block bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col justify-between">
+                    <!-- Procedure Title -->
+                    <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">{{ procedure.title }}</h2>
+                    
+                    <!-- Optional: Add a brief description or metadata here -->
+                    {% if procedure.description %}
+                        <p class="text-gray-600 text-sm mb-4">{{ procedure.description }}</p>
+                    {% endif %}
+                    
+                    <!-- Optional: Add an icon or badge -->
+                    <div class="flex justify-center">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{{ procedure.category }}</span>
                     </div>
-                    <h2 class="text-xl font-semibold text-center">{{ procedure.title }}</h2>
                 </a>
             {% endfor %}
         </div>
