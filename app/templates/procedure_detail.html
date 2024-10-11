@@ -17,6 +17,7 @@
         </ul>
     </div>
     {% endif %}
+    
     {% if procedure.subprocedure %}
     <h2 class="text-xl font-semibold mt-6">Sub-Procedures:</h2>
     <ul class="list-disc pl-5">
@@ -41,36 +42,40 @@
         </ul>
     </div>
     {% endif %}
+    
     {% if hazard_steps %}
     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
         <p class="font-bold">Potential Hazards</p>
         <p>The following steps may contain hazards:</p>
         <ul class="list-disc pl-5">
             {% for step in hazard_steps %}
-                <li>Step {{ step.order }}: {{ step.description }}</li>
+                <li>Step {{ loop.index }}: {{ step.description }}</li>
             {% endfor %}
         </ul>
     </div>
     {% endif %}
 
-    
     <h2 class="text-xl font-semibold mt-6">Steps:</h2>
-    <ol class="list-decimal pl-5">
+    <ul class="list-none pl-5">
         {% for step in steps %}
             <li class="mb-4">
-                <p><strong>Step {{ step.order }}:</strong> {{ step.description }}</p>
+                <!-- Use loop.index for 1-based numbering -->
+                <p><strong>Step {{ loop.index }}:</strong> {{ step.description }}</p>
+                
                 {% if step.action %}
                     <p>Actions: {{ step.action | map(attribute='title') | join(', ') }}</p>
                 {% endif %}
+                
                 {% if step.involves_part %}
                     <p>Parts Involved: {{ step.involves_part | map(attribute='title') | join(', ') }}</p>
                 {% endif %}
+                
                 {% if step.uses_tool %}
                     <p>Tools Used: {{ step.uses_tool | map(attribute='title') | join(', ') }}</p>
                 {% endif %}
             </li>
         {% endfor %}
-    </ol>
+    </ul>
 
     <h2 class="text-xl font-semibold mt-6">Tools Used in Procedure:</h2>
     <ul class="list-disc pl-5">
