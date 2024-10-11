@@ -88,14 +88,27 @@
                 {% endif %}
             </div>
 
-            <!-- Step Images -->
+            <!-- Step Images with Hover and Modal -->
             {% if step.image %}
             <div class="md:w-1/3 flex flex-wrap gap-4">
                 {% for img in step.image %}
-                <img
-                    src="{{ img.url }}"
-                    alt="Step {{ step_num }} Image"
-                    class="w-32 h-32 object-cover rounded shadow-md" />
+                    {% set img_id = "modal-image-" ~ step_num ~ "-" ~ loop.index %}
+                    <!-- Thumbnail Image -->
+                    <label for="{{ img_id }}" class="cursor-pointer">
+                        <img
+                            src="{{ img.url }}"
+                            alt="Step {{ step_num }} Image"
+                            class="w-32 h-32 object-cover rounded shadow-md transition-transform duration-300 transform hover:scale-105" />
+                    </label>
+
+                    <!-- Modal Structure -->
+                    <input type="checkbox" id="{{ img_id }}" class="modal-toggle hidden" /> <!-- Hidden Checkbox -->
+                    <div class="modal">
+                        <div class="modal-box relative">
+                            <label for="{{ img_id }}" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+                            <img src="{{ img.url }}" alt="Step {{ step_num }} Image" class="w-full h-auto object-contain rounded" />
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
             {% endif %}
