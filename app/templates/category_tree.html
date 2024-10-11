@@ -1,0 +1,19 @@
+<!-- templates/category_tree.html -->
+{% macro render_category(category_title, data, form, category_counts) %}
+<div class="pl-4">
+    <div class="flex items-center mb-2">
+        <input type="checkbox" id="{{ category_title|replace(' ', '_') }}" name="categories" value="{{ data.category.title }}"
+               class="checkbox mr-2" {% if data.category.title in form.categories.data %}checked{% endif %}>
+        <label for="{{ category_title|replace(' ', '_') }}" class="text-gray-700 text-sm">
+            {{ data.category.title }} ({{ category_counts.get(data.category.title, 0) }})
+        </label>
+    </div>
+    {% if data.subcategories %}
+        <div class="pl-4">
+            {% for subcategory_title, sub_data in data.subcategories.items() %}
+                {{ render_category(subcategory_title, sub_data, form, category_counts) }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}

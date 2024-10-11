@@ -1,19 +1,44 @@
+<!-- templates/sidebar.html -->
+{% from 'category_tree.html' import render_category %}
 <!-- Facet Filters -->
-{% for collapsible in [form.categories, form.tools, form.parts] %}
 <li class="collapse collapse-arrow">
     <input type="checkbox" />
-    <label class="collapse-title text-gray-700 text-sm font-bold mb-2">{{ collapsible.label }}</label>
+    <label class="collapse-title text-gray-700 text-sm font-bold mb-2">Categories</label>
     <div class="collapse-content">
-        {% for thing in collapsible %}
+        {% for category_title, data in category_hierarchy.items() %}
+            {{ render_category(category_title, data, form, category_counts) }}
+        {% endfor %}
+    </div>
+</li>
+
+<li class="collapse collapse-arrow">
+    <input type="checkbox" />
+    <label class="collapse-title text-gray-700 text-sm font-bold mb-2">Tools</label>
+    <div class="collapse-content">
+        {% for tool in form.tools %}
             <div class="flex items-center mb-2">
-                <input type="checkbox" id="{{ thing.id }}" name="{{ thing.name }}" value="{{ thing.data }}" 
-                       class="checkbox mr-2" {% if thing.checked %}checked{% endif %}>
-                <label for="{{ thing.id }}" class="text-gray-700 text-sm">{{ thing.label }}</label>
+                <input type="checkbox" id="{{ tool.id }}" name="tools" value="{{ tool.data }}"
+                       class="checkbox mr-2" {% if tool.checked %}checked{% endif %}>
+                <label for="{{ tool.id }}" class="text-gray-700 text-sm">{{ tool.label }}</label>
             </div>
         {% endfor %}
     </div>
 </li>
-{% endfor %}
+
+<li class="collapse collapse-arrow">
+    <input type="checkbox" />
+    <label class="collapse-title text-gray-700 text-sm font-bold mb-2">Parts</label>
+    <div class="collapse-content">
+        {% for part in form.parts %}
+            <div class="flex items-center mb-2">
+                <input type="checkbox" id="{{ part.id }}" name="parts" value="{{ part.data }}"
+                       class="checkbox mr-2" {% if part.checked %}checked{% endif %}>
+                <label for="{{ part.id }}" class="text-gray-700 text-sm">{{ part.label }}</label>
+            </div>
+        {% endfor %}
+    </div>
+</li>
+
 <li>
     <button type="submit" class="btn btn-primary w-full">Apply Filters</button>
 </li>
