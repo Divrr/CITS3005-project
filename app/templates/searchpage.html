@@ -39,7 +39,6 @@
                                     <img src="{{ procedure.image[0].url }}" alt="{{ procedure.title }}" class="max-h-full">
                                 {% else %}
                                     <!-- Placeholder Image -->
-                                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No Image" class="max-h-full">
                                 {% endif %}
                             </div>
                             <h2 class="text-xl font-semibold text-center">{{ procedure.title }}</h2>
