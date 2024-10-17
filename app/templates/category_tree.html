@@ -1,11 +1,11 @@
 {# templates/category_tree.html #}
 {% macro render_category(category_title, data, form, category_counts, parent_id='') %}
     {# Generate a unique identifier based on the category hierarchy #}
-    {% set sanitized_title = category_title | replace(' ', '-') | replace('"', '') %}
+    {% set sanitised_title = category_title | replace(' ', '-') | replace('"', '') %}
     {% if parent_id %}
-        {% set unique_id = parent_id ~ '-' ~ sanitized_title %}
+        {% set unique_id = parent_id ~ '-' ~ sanitised_title %}
     {% else %}
-        {% set unique_id = sanitized_title %}
+        {% set unique_id = sanitised_title %}
     {% endif %}
 
     <div class="ml-4">

@@ -17,14 +17,10 @@
                 <a href="{{ url_for('procedure_detail', guidid=procedure.guidid) }}" class="block bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col justify-between">
                     <!-- Procedure Title -->
                     <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">{{ procedure.title }}</h2>
-                    
-                    <!-- Optional: Add a brief description or metadata here -->
-                    {% if procedure.description %}
+                                        {% if procedure.description %}
                         <p class="text-gray-600 text-sm mb-4">{{ procedure.description }}</p>
                     {% endif %}
-                    
-                    <!-- Optional: Add an icon or badge -->
-                    <div class="flex justify-center">
+                                        <div class="flex justify-center">
                         <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{{ procedure.category }}</span>
                     </div>
                 </a>

@@ -2,9 +2,8 @@ import json
 from owlready2 import *
 import os
 from pathlib import Path
-from tqdm import tqdm  # Import tqdm
+from tqdm import tqdm
 
-# Get the absolute path to the ontology file
 ontology_path = Path("ifixit_ontology.owl").resolve()
 print("Ontology absolute path:", ontology_path)
 
@@ -17,7 +16,6 @@ print("Ontology URI:", ontology_uri)
 
 onto = get_ontology(ontology_uri).load(only_local=True, reload=True)
 
-# Verify 'url' property
 print("Verifying 'url' property:")
 url_property = onto.search_one(iri="*url")
 if url_property:
@@ -26,12 +24,11 @@ if url_property:
 else:
     print("'url' property not found in the ontology.")
     
-def sanitize_id(s):
+def sanitise_id(s):
     if s:
         return s.replace('"', '').replace("'", '').replace(" ", "_").replace("&", "and").replace("<", "").replace(">", "").replace("/", "_")
     return s
 
-# Open the sample data
 with open("data/Mac.json", 'r') as f:
     data = [json.loads(line) for line in f]
 
@@ -44,7 +41,7 @@ with onto:
         for category_name in reversed(manual["Ancestors"]):
             if not category_name:
                 continue  # Skip if category_name is None or empty
-            category_id = sanitize_id(category_name)
+            category_id = sanitise_id(category_name)
             category = onto.search_one(iri="*" + category_id)
             if not category:
                 category = onto.DeviceCategory(category_id)
@@ -55,14 +52,14 @@ with onto:
             previous_category = category
 
         # Create Item instance
-        item_id = sanitize_id(manual["Category"])
+        item_id = sanitise_id(manual["Category"])
         item = onto.search_one(iri="*" + item_id)
         if not item:
             item = onto.Item(item_id)
             item.title = manual["Category"]
             item.belongs_to_category = [categories[-1]]
             item.url = manual["Url"]
-            # Attempt to establish subclass_of relationships based on categories
+            # Establish subclass_of relationships based on categories
             if len(categories) > 1:
                 # The immediate parent category
                 parent_category = categories[-2]
@@ -92,7 +89,7 @@ with onto:
             if not tool_name:
                 continue  # Skip if tool_name is None or empty
             tool_name = tool_name.strip().lower()
-            tool_name_clean = sanitize_id(tool_name)
+            tool_name_clean = sanitise_id(tool_name)
             tool = onto.search_one(iri="*" + tool_name_clean)
             if not tool:
                 tool = onto.Tool(tool_name_clean)
@@ -124,7 +121,7 @@ with onto:
                 action_name = action_data.get("name")
                 if not action_name:
                     continue  # Skip if action_name is None or empty
-                action_name_clean = sanitize_id(action_name).strip("_").lower()
+                action_name_clean = sanitise_id(action_name).strip("_").lower()
                 action = onto.search_one(iri="*" + action_name_clean)
                 if not action:
                     action = onto.Action(action_name_clean)
@@ -137,7 +134,7 @@ with onto:
             for part_name in step_data.get("Word_level_parts_clean", []):
                 if not part_name:
                     continue  # Skip if part_name is None or empty
-                part_id = sanitize_id(part_name)
+                part_id = sanitise_id(part_name)
                 part = onto.search_one(iri="*" + part_id)
                 if not part:
                     part = onto.Part(part_id)
@@ -151,7 +148,7 @@ with onto:
             for tool_name in step_data.get("Tools_annotated", []):
                 if tool_name and tool_name != "NA":
                     tool_name = tool_name.strip().lower()
-                    tool_name_clean = sanitize_id(tool_name)
+                    tool_name_clean = sanitise_id(tool_name)
                     tool = onto.search_one(iri="*" + tool_name_clean)
                     if not tool:
                         tool = onto.Tool(tool_name_clean)
@@ -163,7 +160,7 @@ with onto:
             for image_url in step_data.get("Images", []):
                 if not image_url:
                     continue  # Skip if image_url is None or empty
-                image_id = sanitize_id(image_url.split('/')[-1].split('.')[0])
+                image_id = sanitise_id(image_url.split('/')[-1].split('.')[0])
                 image = onto.search_one(iri="*" + image_id)
                 if not image:
                     image = onto.Image(image_id)

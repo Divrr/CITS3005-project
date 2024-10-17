@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 def populate_facet_choices(form=None):
-    # Initialize counts
+    # initialise counts
     category_counts = {}
     tool_counts = {}
     part_counts = {}
@@ -17,7 +17,7 @@ def populate_facet_choices(form=None):
     # Build a mapping of category titles to category instances
     categories_by_title = {cat.title: cat for cat in onto.DeviceCategory.instances() if cat.title}
 
-    # Build category hierarchy and initialize counts
+    # Build category hierarchy and initialise counts
     category_hierarchy = build_category_hierarchy(categories_by_title)
 
     # Calculate counts
@@ -67,7 +67,7 @@ def propagate_category_count(category, category_counts):
         propagate_category_count(parent, category_counts)
 
 def build_category_hierarchy(categories_by_title):
-    # Initialize hierarchy
+    # initialise hierarchy
     hierarchy = {}
 
     # Build parent-child relationships
@@ -240,7 +240,7 @@ def category_detail(category_title):
         parent_category = None
         app.logger.info(f"Category '{category.title}' has no parent (it's a top-level category).")
 
-    # Initialize the search form and populate facet choices
+    # initialise the search form and populate facet choices
     form = SearchForm()
     category_hierarchy, category_counts = populate_facet_choices(form)
     
@@ -335,53 +335,6 @@ def procedure_detail(guidid):
         missing_tools=missing_tools,
         hazard_steps=hazard_steps,
         category=category,
-        category_hierarchy=category_hierarchy,
-        category_counts=category_counts
-    )
-
-@app.route('/procedures_with_many_steps')
-def procedures_with_many_steps():
-    from rdflib import Graph, Namespace
-    from rdflib.namespace import RDF
-
-    # Export ontology to an RDFLib graph
-    graph = onto.world.as_rdflib_graph()
-    ifixit_ns = Namespace("http://example.org/ifixit.owl#")
-    graph.bind("ifixit", ifixit_ns)
-
-    query = """
-    PREFIX ifixit: <http://example.org/ifixit.owl#>
-    SELECT ?procedure ?title (COUNT(?step) AS ?num_steps)
-    WHERE {
-      ?procedure rdf:type ifixit:Procedure .
-      ?procedure ifixit:consists_of ?step .
-      ?procedure ifixit:title ?title .
-    }
-    GROUP BY ?procedure ?title
-    HAVING (COUNT(?step) > 6)
-    """
-
-    results = graph.query(query)
-
-    procedures = []
-    for row in results:
-        procedure_iri = str(row.procedure)
-        procedure_id = procedure_iri.split('#')[-1]
-        title = row.title.toPython()
-        num_steps = int(row.num_steps)
-        procedures.append({'id': procedure_id, 'title': title, 'num_steps': num_steps})
-
-    form = SearchForm()
-    category_hierarchy, category_counts = populate_facet_choices(form)
-    if form.validate_on_submit():
-        # Handle form submission from sidebar if needed
-        return redirect(url_for('search_results'))
-    
-    return render_template(
-        'procedures_with_many_steps.html',
-        form=form,
-        title='Procedures with Many Steps',
-        procedures=procedures,
         category_hierarchy=category_hierarchy,
         category_counts=category_counts
     )
