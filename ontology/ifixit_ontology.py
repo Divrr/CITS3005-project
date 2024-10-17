@@ -139,18 +139,12 @@ with onto:
     rule4 = Imp()
     rule4.set_as_rule("""Procedure(?p) ^ consists_of(?p, ?s) -> Step(?s) ^ in_procedure(?s, ?p)""")
 
-    rule5 = Imp()
-    rule5.set_as_rule("""Step(?s) ^ involves_part(?s, ?p) ^ part_of(?p, ?i) -> Item(?i) ^ part_of(?s, ?i)""")
-
     # SWRL rules for transitive properties
     rule6 = Imp()
     rule6.set_as_rule("""Item(?x) ^ subclass_of(?x, ?y) ^ subclass_of(?y, ?z) -> subclass_of(?x, ?z)""")
 
     rule7 = Imp()
     rule7.set_as_rule("""Item(?x) ^ part_of(?x, ?y) ^ part_of(?y, ?z) -> part_of(?x, ?z)""")
-
-    rule8 = Imp()
-    rule8.set_as_rule("""DeviceCategory(?x) ^ subcategory_of(?x, ?y) ^ subcategory_of(?y, ?z) -> subcategory_of(?x, ?z)""")
 
     rule9 = Imp()
     rule9.set_as_rule("""Procedure(?x) ^ subprocedure(?x, ?y) ^ subprocedure(?y, ?z) -> subprocedure(?x, ?z)""")
