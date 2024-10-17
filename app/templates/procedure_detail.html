@@ -1,0 +1,126 @@
+<!-- templates/procedure_detail.html -->
+{% extends 'base.html' %}
+{% block body %}
+<div class="container mx-auto p-6">
+    {% if category %}
+        <a href="{{ url_for('category_detail', category_title=category.title) }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to {{ category.title }}</a>
+    {% else %}
+        <p class="text-gray-600 mb-4">Back to <a href="{{ url_for('categories_home') }}" class="text-blue-500 hover:underline">Categories</a></p>
+    {% endif %}
+    
+    <div class="flex justify-center">
+        <h1 class="text-2xl font-semibold mt-6 justify-center text-center">{{ procedure.title }}</h1>
+    </div>
+
+    <!-- Display any data errors -->
+    {% if missing_tools %}
+    <div
+        class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4"
+        role="alert">
+        <p class="font-bold">Warning</p>
+        <p>
+            The following tools are used in steps but not listed in the procedure's
+            toolbox:
+        </p>
+        <ul class="list-disc pl-5 mt-2">
+            {% for tool in missing_tools %}
+            <li>{{ tool.title }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %} 
+
+    {% if procedure.subprocedure %}
+    <h2 class="text-2xl font-semibold mt-6">Sub-Procedures:</h2>
+    <ul class="list-disc pl-5 mt-2">
+        {% for subprocedure in procedure.subprocedure %}
+        <li>
+            <a
+                href="{{ url_for('procedure_detail', guidid=subprocedure.guidid) }}"
+                class="text-blue-500 hover:underline">
+                {{ subprocedure.title }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %} 
+
+    {% if hazard_steps %}
+    <div
+        class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
+        role="alert">
+        <p class="font-bold">Potential Hazards</p>
+        <p>The following steps may contain hazards:</p>
+        <ul class="list-disc pl-5 mt-2">
+            {% for step in hazard_steps %}
+            <li>Step {{ loop.index }}: {{ step.description }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h2 class="text-2xl font-semibold mt-6">Steps:</h2>
+    <ul class="space-y-6 mt-4">
+        {% for step in steps %} {% set step_num = loop.index %}
+        <li class="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <!-- Step Description -->
+            <div class="md:w-2/3">
+                <p class="text-xl font-medium">
+                    <strong>Step {{ step_num }}:</strong> {{ step.description }}
+                </p>
+
+                {% if step.action %}
+                <p class="mt-2 text-lg">
+                    <span class="font-semibold">Actions:</span> {{ step.action | map(attribute='title') | join(', ') }}
+                </p>
+                {% endif %} 
+
+                {% if step.involves_part %}
+                <p class="mt-2 text-lg">
+                    <span class="font-semibold">Parts Involved:</span> {{ step.involves_part | map(attribute='title') | join(', ') }}
+                </p>
+                {% endif %} 
+
+                {% if step.uses_tool %}
+                <p class="mt-2 text-lg">
+                    <span class="font-semibold">Tools Used:</span> {{ step.uses_tool | map(attribute='title') | join(', ') }}
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Step Images with Hover and Modal -->
+            {% if step.image %}
+            <div class="md:w-1/3 flex flex-wrap gap-4">
+                {% for img in step.image %}
+                    {% set img_id = "modal-image-" ~ step_num ~ "-" ~ loop.index %}
+                    <!-- Thumbnail Image -->
+                    <label for="{{ img_id }}" class="cursor-pointer">
+                        <img
+                            src="{{ img.url }}"
+                            alt="Step {{ step_num }} Image"
+                            class="w-32 h-32 object-cover rounded shadow-md transition-transform duration-300 transform hover:scale-105" />
+                    </label>
+
+                    <!-- Modal Structure -->
+                    <input type="checkbox" id="{{ img_id }}" class="modal-toggle hidden" /> <!-- Hidden Checkbox -->
+                    <div class="modal">
+                        <div class="modal-box relative">
+                            <label for="{{ img_id }}" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+                            <img src="{{ img.url }}" alt="Step {{ step_num }} Image" class="w-full h-auto object-contain rounded" />
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h2 class="text-2xl font-semibold mt-8">Tools Used in Procedure:</h2>
+    <ul class="list-disc pl-5 mt-2">
+        {% for tool in procedure.uses_tool %}
+        <li>{{ tool.title }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
