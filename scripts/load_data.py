@@ -28,7 +28,7 @@ else:
     
 def sanitize_id(s):
     if s:
-        return s.replace('"', '').replace("'", '').replace(" ", "_").replace("&", "and").replace("<", "").replace(">", "").replace("/", "_").strip("_").lower()
+        return s.replace('"', '').replace("'", '').replace(" ", "_").replace("&", "and").replace("<", "").replace(">", "").replace("/", "_")
     return s
 
 # Open the sample data
@@ -124,7 +124,7 @@ with onto:
                 action_name = action_data.get("name")
                 if not action_name:
                     continue  # Skip if action_name is None or empty
-                action_name_clean = sanitize_id(action_name)
+                action_name_clean = sanitize_id(action_name).strip("_").lower()
                 action = onto.search_one(iri="*" + action_name_clean)
                 if not action:
                     action = onto.Action(action_name_clean)
