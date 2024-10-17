@@ -14,11 +14,8 @@ def populate_facet_choices(form=None):
     tool_counts = {}
     part_counts = {}
 
-    # Build a mapping of category titles to category instances
-    categories_by_title = {cat.title: cat for cat in onto.DeviceCategory.instances() if cat.title}
-
     # Build category hierarchy and initialize counts
-    category_hierarchy = build_category_hierarchy(categories_by_title)
+    category_hierarchy = build_category_hierarchy(onto.DeviceCategory.instances())
 
     # Calculate counts
     for procedure in onto.Procedure.instances():
@@ -66,29 +63,27 @@ def propagate_category_count(category, category_counts):
     for parent in category.subcategory_of:
         propagate_category_count(parent, category_counts)
 
-def build_category_hierarchy(categories_by_title):
-    # Initialize hierarchy
-    hierarchy = {}
+def build_category_hierarchy(categories):
+    # This is so we get a hierarchical (instead of flat) representation of categories
+    child_bank = {
+        parent.title: [category.title for category in categories if parent in category.subcategory_of]
+        for parent in categories
+    }
 
-    # Build parent-child relationships
-    for category in categories_by_title.values():
-        category_title = category.title
-        parent_titles = [parent.title for parent in category.subcategory_of]
-        if not parent_titles:
-            # Top-level category
-            if category_title not in hierarchy:
-                hierarchy[category_title] = {'category': category, 'subcategories': {}}
-        else:
-            for parent_title in parent_titles:
-                parent = categories_by_title.get(parent_title)
-                if parent:
-                    if parent_title not in hierarchy:
-                        hierarchy[parent_title] = {'category': parent, 'subcategories': {}}
-                    if 'subcategories' not in hierarchy[parent_title]:
-                        hierarchy[parent_title]['subcategories'] = {}
-                    hierarchy[parent_title]['subcategories'][category_title] = {'category': category, 'subcategories': {}}
-
-    return hierarchy
+    def build_category_hierarchy_recursive(children, parent):
+        if not children:
+            return []
+        ans = []
+        for child in children:
+            ans.append({
+                'Category': child,
+                'Subcategories': build_category_hierarchy_recursive(child_bank[child], child)
+            })
+        return ans
+    
+    root = [category.title for category in categories if not category.subcategory_of][0]
+    ans = build_category_hierarchy_recursive(child_bank[root], root)
+    return ans
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
