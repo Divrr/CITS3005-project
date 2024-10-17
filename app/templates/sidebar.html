@@ -1,2 +1,64 @@
-<li>sidebar content</li>
-<li>sidebar content</li>
+<!-- templates/sidebar.html -->
+{% from 'category_tree.html' import render_category %}
+
+<!-- Facet Filters -->
+<ul class="list-none">
+    <!-- Categories Collapse -->
+    <li class="collapse collapse-arrow mb-4">
+        <!-- Collapse Toggle Checkbox (hidden) -->
+        <input type="checkbox" id="collapse-categories" class="hidden peer" />
+        <label class="collapse-title text-gray-700 text-sm font-bold mb-2 cursor-pointer" for="collapse-categories">
+            Categories
+        </label>
+        <div class="collapse-content">
+            {% for category_title, data in category_hierarchy.items() %}
+                {{ render_category(category_title, data, form, category_counts) }}
+            {% endfor %}
+        </div>
+    </li>
+
+    <!-- Tools Collapse -->
+    <li class="collapse collapse-arrow mb-4">
+        <input type="checkbox" id="collapse-tools" class="hidden peer" />
+        <label class="collapse-title text-gray-700 text-sm font-bold mb-2 cursor-pointer" for="collapse-tools">Tools</label>
+        <div class="collapse-content">
+            {% for tool in form.tools %}
+                <div class="flex items-center mb-2">
+                    <input 
+                        type="checkbox" 
+                        id="{{ tool.id }}" 
+                        name="tools" 
+                        value="{{ tool.data }}"
+                        class="checkbox mr-2" 
+                        {% if tool.data in (form.tools.data | default([])) %}checked{% endif %}>
+                    <label for="{{ tool.id }}" class="text-gray-700 text-sm">{{ tool.label }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    </li>
+
+    <!-- Parts Collapse -->
+    <li class="collapse collapse-arrow mb-4">
+        <input type="checkbox" id="collapse-parts" class="hidden peer" />
+        <label class="collapse-title text-gray-700 text-sm font-bold mb-2 cursor-pointer" for="collapse-parts">Parts</label>
+        <div class="collapse-content">
+            {% for part in form.parts %}
+                <div class="flex items-center mb-2">
+                    <input 
+                        type="checkbox" 
+                        id="{{ part.id }}" 
+                        name="parts" 
+                        value="{{ part.data }}"
+                        class="checkbox mr-2" 
+                        {% if part.data in (form.parts.data | default([])) %}checked{% endif %}>
+                    <label for="{{ part.id }}" class="text-gray-700 text-sm">{{ part.label }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    </li>
+
+    <!-- Apply Filters Button -->
+    <li>
+        <button type="submit" class="btn btn-primary w-full">Apply Filters</button>
+    </li>
+</ul>

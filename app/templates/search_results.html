@@ -1,0 +1,15 @@
+<!-- templates/search_results.html -->
+{% if procedures %}
+<p class="text-lg font-light italic py-4">Found {{ procedures|length }} procedures matching "{{ query }}".</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {% for procedure in procedures %}
+  <div class="card p-4 shadow-md transition hover:-translate-y-0.5 hover:scale-105 duration-300">
+    <a href="{{ url_for('procedure_detail', procedure_id=procedure.name) }}">
+      <p>{{ procedure.title }}</p>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-lg font-light italic py-4">No procedures found matching your query.</p>
+{% endif %}

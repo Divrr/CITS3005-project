@@ -17,7 +17,7 @@ SELECT ?procedure ?title (COUNT(?step) AS ?num_steps)
 WHERE {
   ?procedure rdf:type ifixit:Procedure .
   ?procedure ifixit:consists_of ?step .
-  ?procedure ifixit:has_title ?title .
+  ?procedure ifixit:title ?title .
 }
 GROUP BY ?procedure ?title
 HAVING (COUNT(?step) > 6)
@@ -40,7 +40,7 @@ SELECT ?item ?title (COUNT(?procedure) AS ?num_procedures)
 WHERE {
   ?procedure rdf:type ifixit:Procedure .
   ?procedure ifixit:part_of ?item .
-  ?item ifixit:has_title ?title .
+  ?item ifixit:title ?title .
 }
 GROUP BY ?item ?title
 HAVING (COUNT(?procedure) > 10)
@@ -63,8 +63,8 @@ SELECT DISTINCT ?procedure ?title ?tool_title
 WHERE {
   ?procedure rdf:type ifixit:Procedure .
   ?procedure ifixit:uses_tool ?tool .
-  ?procedure ifixit:has_title ?title .
-  ?tool ifixit:has_title ?tool_title .
+  ?procedure ifixit:title ?title .
+  ?tool ifixit:title ?tool_title .
   FILTER NOT EXISTS {
     ?procedure ifixit:consists_of ?step .
     ?step ifixit:uses_tool ?tool .
@@ -89,9 +89,9 @@ SELECT ?procedure ?proc_title ?step ?step_order ?description
 WHERE {
   ?procedure rdf:type ifixit:Procedure .
   ?procedure ifixit:consists_of ?step .
-  ?procedure ifixit:has_title ?proc_title .
-  ?step ifixit:has_order ?step_order .
-  ?step ifixit:has_description ?description .
+  ?procedure ifixit:title ?proc_title .
+  ?step ifixit:order ?step_order .
+  ?step ifixit:description ?description .
   FILTER (regex(?description, "careful|dangerous", "i"))
 }
 ORDER BY ?procedure ?step_order

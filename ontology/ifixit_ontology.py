@@ -37,11 +37,10 @@ with onto:
         pass
 
     # Object Properties
-
-    class is_subclass_of(ObjectProperty, TransitiveProperty):
-        """Defines a transitive subclass relationship among Items."""
+    class subclass_of(ObjectProperty):
+        """Defines a subclass relationship among Items."""
         domain = [Item]
-        range = [Item]
+        range = [DeviceCategory]
 
     class consists_of(ObjectProperty):
         """Procedure consists of steps."""
@@ -50,7 +49,7 @@ with onto:
 
     class uses_tool(ObjectProperty):
         """Associates tools with Procedures and Steps."""
-        domain = [Procedure, Step]
+        domain = [Procedure | Step]
         range = [Tool]
 
     class involves_part(ObjectProperty):
@@ -58,22 +57,22 @@ with onto:
         domain = [Step]
         range = [Part]
 
-    class has_action(ObjectProperty):
+    class action(ObjectProperty):
         """Step has an action."""
         domain = [Step]
         range = [Action]
 
-    class has_image(ObjectProperty):
+    class image(ObjectProperty):
         """Associates images with items or steps."""
-        domain = [Item, Step]
+        domain = [Item | Step]
         range = [Image]
 
-    class part_of(ObjectProperty, TransitiveProperty):
-        """Defines a transitive part-of relationship."""
-        domain = [Item, Part, Procedure]
+    class part_of(ObjectProperty):
+        """Defines a part-of relationship."""
+        domain = [Item | Part | Procedure]
         range = [Item]
 
-    class is_subcategory_of(ObjectProperty, TransitiveProperty):
+    class subcategory_of(ObjectProperty):
         """Defines the category hierarchy."""
         domain = [DeviceCategory]
         range = [DeviceCategory]
@@ -83,46 +82,72 @@ with onto:
         domain = [Item]
         range = [DeviceCategory]
 
-    class has_subprocedure(ObjectProperty):
+    class subprocedure(ObjectProperty):
         """Links a Procedure to its sub-procedures."""
         domain = [Procedure]
         range = [Procedure]
 
     # Data Properties
-    class has_title(DataProperty, FunctionalProperty):
+    class title(DataProperty, FunctionalProperty):
         """Title or name."""
         domain = [Thing]
         range = [str]
 
-    class has_description(DataProperty, FunctionalProperty):
+    class description(DataProperty, FunctionalProperty):
         """Text description."""
-        domain = [Procedure, Step, Action]
+        domain = [Procedure | Step| Action]
         range = [str]
 
-    class has_order(DataProperty, FunctionalProperty):
+    class order(DataProperty, FunctionalProperty):
         """Order number in a sequence."""
         domain = [Step]
         range = [int]
 
-    class has_url(DataProperty, FunctionalProperty):
+    class url(DataProperty, FunctionalProperty):
         """URL link."""
-        domain = [Item, Tool, Procedure, Image]
+        domain = [Item | Tool | Procedure | Image]
         range = [str]
 
-    class has_thumbnail(DataProperty, FunctionalProperty):
+    class thumbnail(DataProperty, FunctionalProperty):
         """Thumbnail image URL."""
-        domain = [Tool, Image]
+        domain = [Tool | Image]
         range = [str]
 
-    class has_guidid(DataProperty, FunctionalProperty):
+    class guidid(DataProperty, FunctionalProperty):
         """Unique guide ID."""
         domain = [Procedure]
         range = [int]
 
-    class has_stepid(DataProperty, FunctionalProperty):
+    class stepid(DataProperty, FunctionalProperty):
         """Unique step ID."""
         domain = [Step]
         range = [int]
+    
+    class involved_in_step(ObjectProperty): pass
+    class used_in(ObjectProperty): pass
+    class in_procedure(ObjectProperty): pass
+
+    rule1 = Imp()
+    rule1.set_as_rule("""Step(?s) ^ involves_part(?s, ?p) -> Part(?p) ^ involved_in_step(?p, ?s)""")
+
+    rule2 = Imp()
+    rule2.set_as_rule("""Step(?s) ^ uses_tool(?s, ?t) -> Tool(?t) ^ used_in(?t, ?s)""")
+
+    rule3 = Imp()
+    rule3.set_as_rule("""Procedure(?p) ^ uses_tool(?p, ?t) -> Tool(?t) ^ used_in(?t, ?p)""")
+
+    rule4 = Imp()
+    rule4.set_as_rule("""Procedure(?p) ^ consists_of(?p, ?s) -> Step(?s) ^ in_procedure(?s, ?p)""")
+
+    # SWRL rules for transitive properties
+    rule6 = Imp()
+    rule6.set_as_rule("""Item(?x) ^ subclass_of(?x, ?y) ^ subclass_of(?y, ?z) -> subclass_of(?x, ?z)""")
+
+    rule7 = Imp()
+    rule7.set_as_rule("""Item(?x) ^ part_of(?x, ?y) ^ part_of(?y, ?z) -> part_of(?x, ?z)""")
+
+    rule9 = Imp()
+    rule9.set_as_rule("""Procedure(?x) ^ subprocedure(?x, ?y) ^ subprocedure(?y, ?z) -> subprocedure(?x, ?z)""")
 
 # Save the ontology to a file
 onto.save(file="ifixit_ontology.owl", format="rdfxml")
