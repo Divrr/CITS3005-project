@@ -1,35 +1,5 @@
 <!-- templates/sidebar.html -->
-{% macro render_category(category) %}
-{% if category[1] %}
-<li class="collapse collapse-arrow">
-    <input type="checkbox" id="collapse-{{ category[0] }}" class="hidden peer" />
-    <label class="collapse-title text-gray-700 text-sm font-bold cursor-pointer" for="collapse-{{ category[0] }}">
-        <div class="flex items-center">
-            <input type="checkbox" name="categories" value="{{ category[0] }}" class="mr-2 checkbox" />
-            <label for="category[0].title" class="text-gray-700 text-sm">
-            {{ category[0].title }} ( {{ category_counts[category[0]] }} )
-            </label>
-        </div>
-    </label>
-    <div class="collapse-content mr-0 pr-0">
-        <ul class="list-none px-0">
-            {% for subcategory in category[1] %}
-                {{ render_category(subcategory) }}
-            {% endfor %}
-        </ul>
-    </div>
-</li>
-{% else %}
-<li class="p-4">
-    <div class="flex items-center">
-        <input type="checkbox" name="categories" value="{{ category[0] }}" class="mr-2 checkbox" />
-        <label for="category[0].title" class="text-gray-700 text-sm">
-        {{ category[0].title }} ( {{ category_counts[category[0]] }} )
-        </label>
-    </div>
-</li>
-{% endif %}
-{% endmacro %}
+{% from 'category_tree.html' import render_category %}
 
 <!-- Facet Filters -->
 <ul class="list-none">
@@ -40,13 +10,10 @@
         <label class="collapse-title text-gray-700 text-sm font-bold mb-2 cursor-pointer" for="collapse-categories">
             Categories
         </label>
-        <div class="collapse-content m-0 p-0">
-            <ul class="list-none px-0">
-                <!-- Category Tree -->
-                {% for category in category_hierarchy %}
-                    {{ render_category(category) }}
-                {% endfor %}
-            </ul>
+        <div class="collapse-content">
+            {% for category_title, data in category_hierarchy.items() %}
+                {{ render_category(category_title, data, form, category_counts) }}
+            {% endfor %}
         </div>
     </li>
 

@@ -58,7 +58,7 @@ def populate_facet_choices(form=None):
 
 def propagate_category_count(category, category_counts):
     # Increment count for the category
-    category_counts[category] = category_counts.get(category, 0) + 1
+    category_counts[category.title] = category_counts.get(category.title, 0) + 1
     # Recursively increment counts for parent categories
     for parent in category.subcategory_of:
         propagate_category_count(parent, category_counts)
@@ -66,7 +66,7 @@ def propagate_category_count(category, category_counts):
 def build_category_hierarchy(categories):
     # This is so we get a hierarchical (instead of flat) representation of categories
     child_bank = {
-        parent: [category for category in categories if parent in category.subcategory_of]
+        parent.title: [category.title for category in categories if parent in category.subcategory_of]
         for parent in categories
     }
 
@@ -75,10 +75,13 @@ def build_category_hierarchy(categories):
             return []
         ans = []
         for child in children:
-            ans.append([child, build_category_hierarchy_recursive(child_bank[child], child)])
+            ans.append({
+                'Category': child,
+                'Subcategories': build_category_hierarchy_recursive(child_bank[child], child)
+            })
         return ans
     
-    root = [category for category in categories if not category.subcategory_of][0]
+    root = [category.title for category in categories if not category.subcategory_of][0]
     ans = build_category_hierarchy_recursive(child_bank[root], root)
     return ans
 
@@ -89,7 +92,6 @@ def index():
     if form.validate_on_submit():
         # Handle form submission from sidebar if needed
         return redirect(url_for('search_results'))
-    print(category_counts, category_hierarchy)
     return render_template(
         'index.html',
         title='Homepage',
