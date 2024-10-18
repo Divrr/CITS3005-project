@@ -8,7 +8,7 @@
         {% set unique_id = sanitised_title %}
     {% endif %}
 
-    <div class="ml-4" x-data="{ open: false }">
+    <div class="ml-1" x-data="{ open: false }">
         <!-- Category Selection Checkbox -->
         <div class="flex items-center mb-2">
             <input 
@@ -43,7 +43,7 @@
                  x-transition:leave="transition ease-in duration-75" 
                  x-transition:leave-start="transform opacity-100 scale-100" 
                  x-transition:leave-end="transform opacity-0 scale-95"
-                 class="ml-4">
+                 class="ml-1">
                 {% for subcategory_title, subdata in data.subcategories.items() %}
                     {{ render_category(subcategory_title, subdata, form, category_counts, unique_id) }}
                 {% endfor %}
