@@ -14,11 +14,11 @@
         <!-- Searchbar -->
         <div class="container mx-auto w-1/2 md:flex items-center justify-center gap-2 join">
             {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
-            <button type="submit" class="btn join-item">
+            <button type="submit" class="btn join-item btn-primary">
                 <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
             </button>
         </div>
-        <label for="my-drawer" class="btn drawer-button lg:hidden w-fit">more</label>
+        <label for="my-drawer" class="btn btn-primary drawer-button lg:hidden w-fit">more</label>
     </nav>
 
     <div class="drawer lg:drawer-open">
@@ -48,7 +48,13 @@
             {% else %}
                 <p class="text-center text-gray-600">No procedures match your search criteria.</p>
             {% endif %}
+            <div class="mt-10 text-center">
+                <a href="{{ url_for('categories_home') }}" class="btn btn-primary text-xl">
+                    Browse Categories
+                </a>
+            </div>
         </div>
+        
         
         <!-- Sidebar -->
         <div class="drawer-side">

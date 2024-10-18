@@ -1,7 +1,9 @@
 <form id="modalbutton">
-    <button class="btn" form="modalbutton" onclick="modal.showModal()">more</button>
+    <button class="btn btn-primary" form="modalbutton" onclick="modal1.showModal()">
+        <img src="{{ url_for('static', filename='src/filter.svg') }}" alt="filter" class="w-4 h-4">
+    </button>
 </form>
-<dialog id="modal" class="modal w-screen">
+<dialog id="modal1" class="modal">
     <div class="modal-box w-11/12 max-w-5xl max-h-96">
         <div class="flex max-h-72">
             {% for collapsible in [form.categories, form.tools, form.parts] %}
@@ -21,10 +23,10 @@
             {% endfor %}
         </div>
         <div class="flex justify-end">
-            <form method="dialog" class="btn btn-secondary" id="modalclose">
-              <button form="modalclose">close</button>
-            </form>
             <button type="submit" class="btn btn-primary">Apply Filters</button>
         </div>
     </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
 </dialog>

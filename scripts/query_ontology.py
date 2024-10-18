@@ -9,6 +9,7 @@ graph = onto.world.as_rdflib_graph()
 
 ifixit_ns = Namespace("http://example.org/ifixit.owl#")
 graph.bind("ifixit", ifixit_ns)
+graph.serialize(destination="ifixit_knowledge_graph.ttl", format="turtle")
 
 # Query 1: Procedures with more than 6 steps
 query1 = """

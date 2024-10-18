@@ -2,27 +2,39 @@
 {% extends 'base.html' %}
 
 {% block body %}
+
+<form action="{{ url_for('search_results') }}" method="post" id="searchform">
+    {{ form.hidden_tag() }}
+    <nav class="navbar p-4 shadow-md flex justify-between items-center">
+        <a href="{{ url_for('index') }}" class="flex gap-2 w-20">
+            <img src="https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-96x96.png" alt="icon" class="w-10 h-fit object-fit">
+            <p class="text-xl font-bold whitespace-nowrap items-center hidden lg:flex">iFixit KG</p>
+        </a>
+        <div class="container mx-auto w-1/2 md:flex items-center justify-center gap-2 join">
+            {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
+            <button type="submit" class="btn join-item btn-primary">
+                <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
+            </button>
+        </div>
+    </nav>
+</form>
+
 <div class="container mx-auto p-6">
     {% if parent %}
-        <a href="{{ url_for('category_detail', category_title=parent.title) }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to {{ parent.title }}</a>
-    {% else %}
-        <a href="{{ url_for('index') }}" class="text-blue-500 hover:underline mb-4 inline-block">&larr; Back to Home</a>
+        <a href="{{ url_for('category_detail', category_title=parent.title) }}" class="text-blue-500 hover:underline mb-4 inline-block float-start">&larr; Back to {{ parent.title }}</a>
     {% endif %}
     
-    <h1 class="text-4xl font-bold mb-6 text-center text-gray-800">{{ category.title }} Guides</h1>
+    <h1 class="text-4xl font-bold my-12 text-center text-gray-800 ">{{ category.title }} Guides</h1>
 
     {% if procedures %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {% for procedure in procedures %}
-                <a href="{{ url_for('procedure_detail', guidid=procedure.guidid) }}" class="block bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col justify-between">
+                <a href="{{ url_for('procedure_detail', guidid=procedure.guidid) }}" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col items-center justify-center min-h-[200px]">
                     <!-- Procedure Title -->
                     <h2 class="text-xl font-semibold text-center text-gray-800 mb-4">{{ procedure.title }}</h2>
-                                        {% if procedure.description %}
+                    {% if procedure.description %}
                         <p class="text-gray-600 text-sm mb-4">{{ procedure.description }}</p>
                     {% endif %}
-                                        <div class="flex justify-center">
-                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">{{ procedure.category }}</span>
-                    </div>
                 </a>
             {% endfor %}
         </div>

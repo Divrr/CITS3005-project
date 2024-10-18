@@ -1,45 +1,30 @@
-<!-- templates/index.html -->
-{% extends 'base.html' %}
-
+{% extends 'base.html' %} 
 {% block body %}
 <form action="{{ url_for('search_results') }}" method="post" id="searchform">
-    {{ form.hidden_tag() }}
-    
-    <!-- Navbar -->
-    <nav class="navbar p-4 shadow-md flex justify-between items-center">
-        <a href="{{ url_for('index') }}" class="flex gap-2 w-20">
-            <img src="https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-96x96.png" alt="icon" class="w-10 h-fit object-fit">
-            <p class="text-xl font-bold whitespace-nowrap items-center hidden lg:flex">iFixit KG</p>
-        </a>
-        <!-- Searchbar -->
-        <div class="container mx-auto w-1/2 md:flex items-center justify-center gap-2 join">
-            {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
-            <button type="submit" class="btn join-item">
-                <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
-            </button>
-        </div>
-        <label for="my-drawer" class="btn drawer-button lg:hidden w-fit">more</label>
-    </nav>
-
-    <div class="drawer lg:drawer-open">
-        <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-        <!-- Main Content -->
-        <div class="drawer-content container mx-auto w-5/6 my-10">            
-            <!-- Link to Categories -->
-            <div class="mt-10 text-center">
-                <a href="{{ url_for('categories_home') }}" class="btn btn-primary text-xl px-8 py-4">
-                    Browse Categories
-                </a>
-            </div>
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="drawer-side">
-            <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-            <ul class="bg-base-200 min-h-full w-80 p-5 gap-4">
-                {% include 'sidebar.html' %}
-            </ul>
-        </div>
+  {{ form.hidden_tag() }}
+  <div class="flex flex-col items-center justify-center h-screen m-0 font-sans gap-3">
+    <!-- logo -->
+    <img
+      src="{{url_for('static',filename='src/logo.svg')}}"
+      alt="logo"
+      class="w-72 mb-10" />
+  
+    <!-- searchbar -->
+    <div class="container w-1/2 md:flex items-center justify-center gap-2">
+      <div class="gap-2 join w-full">
+        {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
+        <button type="submit" from="searchform" class="btn btn-primary join-item">
+          <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
+        </button>
+      </div>
+      {% include 'modalbar.html' %}
     </div>
+    <div class="mt-10 text-center">
+        <a href="{{ url_for('categories_home') }}" class="btn btn-primary text-xl">
+            Browse Categories
+        </a>
+    </div>
+  </div>
 </form>
+
 {% endblock %}
