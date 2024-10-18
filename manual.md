@@ -1,11 +1,5 @@
-25% A User Manual that explains how to use and run the applications, including: 
-- an overview of the schema, and ontology rules.
-- example queries, describing how to form the queries and interpret the output.
-- instructions on how to add, update or remove data in the knowledge graph, and add rules to the ontology.
-The user manual maybe presented as a pdf file, or using HTML/Markdown. 
 
-# User Manual for iFixit Knowledge Graph Application
-## Introduction
+# User Manual for iFixit Knowledge Graph Application## Introduction
 The application built is designed to create a knowledge graph and ontology around iFixit instruction manuals.  It allows users to browse procedures, tools, and items while enforcing certain relationships and querying capabilities. This manual provides an overview of the ontology, key queries, and instructions on how to interact with the knowledge graph.
 
 ## Overview of the Schema and Ontology Rules
