@@ -1,47 +1,126 @@
-# iFixit: Know-How to Knowledge Graph
-This project is due on **11.59pm October 18, 2024** and is worth **30% of your final grade.** You may choose to complete the project in a pair, or as an individual. If you complete the project as a pair, you must each submit a separate individual report. Each student should submit their work to [cssubmit](https://secure.csse.uwa.edu.au/run/cssubmit). If working in a pair, each student should submit the full set of files, but each file should clearly indicate both students who contributed to it.
 
----
+# User Manual for iFixit Knowledge Graph Application
+The application built is designed to create a knowledge graph and ontology around iFixit instruction manuals.  It allows users to browse procedures, tools, and items while enforcing certain relationships and querying capabilities. This manual provides an overview of the ontology, key queries, and instructions on how to interact with the knowledge graph.
 
-## Overview:
-  - [iFixit](https://www.ifixit.com/Manifesto) is a community project built around the right to repair, and shares knowledge about procedures for fixing broken things, including computers, phones, cars, clothes appliances and so on. The guides are organised so that they are easy to browse and search, and have a standardized format, so they are easy to use and write. In this project, you will choose a subcategory of instruction manuals, and build a knowledge graph and ontology around those manuals.
-  - The iFixit corpus has already be partially processed and refined to build a [dataset](https://github.com/rub-ksv/MyFixit-Dataset) and related resources. The dataset is a [github repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)  which you can clone to your local machine, and explore the data which is in json format. Using this as a starting point, you should aim to build a lightweight ontology describing the procedures context of these manuals, populate the ontology with the data in the repository (or similar data you have sourced from elsewhere), and produce queries and processes demonstrating the operation of your ontology.
-  - Your ontology should run as a small standalone application, that may be implemented as a command line program running in a python shell, or a small flask application.  
-## Deliverables:
-You should deliver the following elements:
-- **25%** An OWLReady 2 ontology (possibly including pySHACL) describing the concepts in the graph, including: procedure, item, part, tool, step, image. These should allow natural and useful queries over the knowledge graph, and should enforce, at least:
-  - An item, with a subclass relation that is transitive, and a part-of relation that identifies when one item is a part of another item 
-  - Tools used in a step of the procedure appear in the toolbox of the procedure
-  - A sub-procedure of a procedure must be a procedure for the same item or a part of that item.
-    This should be submitted as an owl file, optionally a pySHACL file, and an python script for loading the ontology with the knowledge graph.
-- **25%** A knowledge graph, implemented in OWLReady2 connecting the ontology to the iFixit Dataset. A test set of data should be provided with a python script provided to load the data into RDFLib and execute some SPARQL queries, including:
-  - Find all procedures with more than 6 steps;
-  - Find all items that have more than 10 procedures written for them;
-  - Find all procedures that include a tool that is never mentioned in the procedure steps;
-  - Flag potential hazards in the procedure by identifying steps with works like "careful" and "dangerous". 
-- **15%** A python application, using the command line or Flask, that allows a use to browse and search the ontology/knowledge graph
-  - The application should display the data as well as the inferred classes and relations.
-  - The application should provide a syntax for searching the procedures
-  - The application should identify any errors in the data (according to the ontology).
-    The ontology, knowledge graph and application should be submitted as a zip file (*.zip). This should not include the entire iFixit dataset, but just enough data to demonstrate the functionality of the application.
-- **25%** A User Manual that explains how to use and run the applications, including: 
-  - an overview of the schema, and ontology rules.
-  - example queries, describing how to form the queries and interpret the output.
-  - instructions on how to add, update or remove data in the knowledge graph, and add rules to the ontology.
-    The user manual maybe presented as a pdf file, or using HTML/Markdown. 
-- **10%** An individual report describing the process of building the project, including:
-  - The design choices made in the project. Which options were considered and why di you make the choice you did?
-  - What tools you used in the project, how effective were they, and what you would recommend people use in the future.
-  - An estimate of time spent on the different tasks in the project.
-  - If you worked in pairs, describe how work was divided, how effective you thought the collaboration was, and an honest assessment of the relative contribution of both team members.
-    The individual report should be a pdf file.
-The marking criterion gives a rough indication of what is expected.
+## Overview of the Schema and Ontology Rules
+The main concepts of the ontology are:
+  - Procedure: Represents a set of steps for fixing an item.
+  - Item: Any physical object described in the procedure.
+  - Part: A component that makes up an item. 
+  - Tool: Tools used within a procedure's steps.
+  - Step: Individual actions or tasks within a procedure.
 
-## Resources:
-The resources page will be updated as the project progress. The basic tools that should be used when completing this project are:
-  - [owlready2](https://owlready2.readthedocs.io/en/v0.42/) for representing the ontology and applying reasoning, including [RDFLib](https://rdflib.readthedocs.io/en/stable/) and Python for building the knowledge graph and executing SPARQL queries.
-  - [pYSHACL](https://github.com/RDFLib/pySHACL) for applying and validating constraints on the graph (optional).
-  - [owlready2](https://owlready2.readthedocs.io/en/v0.42/) for representing the ontology and applying reasoning.
-  - [flask](https://flask.palletsprojects.com/en/3.0.x/) for building a basic webserver and interface (optional). If you haven't done [CITS3403](https://teaching.csse.uwa.edu.au/units/CITS3403/index-2023.html), this tutorial is an excellent resource.
-  - an [ontology for maintenance](https://content.iospress.com/articles/applied-ontology/ao230279), by Caitlin Woods
-You can access iFixit data from this [GitHub repo](https://github.com/rub-ksv/MyFixit-Dataset). Or derive your own from [iFixit](https://www.ifixit.com/) using tools like [beautifulsoup](https://pypi.org/project/beautifulsoup4/), or their [API](https://www.ifixit.com/api/2.0/doc?srsltid=AfmBOooTJFjt8OgGAMWqw_C1vJ_Uy4CfLo2BVYaYiDFle6FrlzGi60LI).
+Other objects include:
+  - DeviceCategory: All ancestor category classes of items -- for example, "Macbook" and "Powershell".
+  - Image: Node linking to image and thumbnail URLs. 
+  - Action: Represents an action performed in a step. These are extracted from the json file's "removal_verbs" section.
+
+Properties include:
+  - All items have a `title`. Procedures, steps and actions can have further `description`s, which are the extracted raw texts.
+  - The Image object connect steps and items to `url` and `thumbnail` properties.
+  - Each procedure has a unique `guidid`, and each step has a unique `stepid`.
+
+Reltionships include:
+  - Procedures connect to each of their steps using `consists_of`. Each step contains a step `order`.
+  - Both procedures and steps have the `uses_tool` relation, based on what has been extracted in the json. Steps can additionally be associated with `action`s.
+  - Steps have the `involves_part` relation
+  - A procedure, part or item can be `part_of` another item. This is useful in creating relations between procedures relating to related items.
+  - The device category hierarchy is outlined using a transitive `is_subcategory_of` relation. An item connects to its most specific category using the `belongs_to_category` relation.
+  - A procedure can be part of another procedure for the same or related items. This is outlined by the `subprocedure` relation.
+
+Ontology Rules (Axioms):
+Inference rules allow us to infer transitive and inverse relations of items. 
+- Transitive relations are `subclass_of`, `part_of` and `subprocedure`.
+- Inverse relations are 
+  - part `involved_in_step`, which is the invere of step `involves_part`.
+  - tool `used_in` step or procedure, which is the inverse of step or procedure `uses_tool`
+  - step `in_procedure`, which is the inverse of procedure `consists of` step.
+ 
+Example Ontology Rules:
+- Item(?x) ^ subclass_of(?x, ?y) ^ subclass_of(?y, ?z) -> subclass_of(?x, ?z)
+- Procedure(?x) ^ subprocedure(?x, ?y) ^ subprocedure(?y, ?z) -> subprocedure(?x, ?z)
+
+
+## Example Queries
+The following example SPARQL Queries display the name of the element you have searched for in the ontology:
+1. This example returns all procedures with more than 6 steps:
+```
+SELECT ?procedure 
+WHERE { 
+  ?procedure :hasStep ?step . 
+} 
+GROUP BY ?procedure 
+HAVING (COUNT(?step) > 6)
+```
+2. This example returns all items with more than 10 procedures:
+```
+SELECT ?item 
+WHERE { 
+  ?item :hasProcedure ?procedure .
+} 
+GROUP BY ?item 
+HAVING (COUNT(?procedure) > 10)
+```
+3. This example returns tools included in a procedure but not mentioned in any of its steps:
+```
+SELECT ?tool 
+WHERE { 
+  ?procedure :hasTool ?tool .
+  FILTER NOT EXISTS { ?step :usesTool ?tool } 
+}
+```
+4. This example returns all hazardous steps. We define a hazardous step as one with the words "careful" or "dangerous" written in the raw text:
+```
+SELECT ?step 
+WHERE { 
+  ?step :description ?desc .
+  FILTER (CONTAINS(?desc, "careful") || CONTAINS(?desc, "dangerous"))
+}
+``` 
+
+You can run more examples in the `scripts/query_ontology.py` file.
+
+## Instructions for Adding, Updating, and Removing Data
+### To add data:
+To add new data to the knowledge graph, you can use RDFLib to insert new triples (subject, predicate, object) into the graph.
+Example: 
+```python
+g.add((procedure_uri, URIRef("http://ontology/usesTool"), tool_uri))
+```
+
+### To update data:
+To update existing data, first remove the old triple and then add the updated one. This ensures consistency without duplicating relationships.
+Example: 
+```python
+g.remove((procedure_uri, URIRef("http://ontology/usesTool"), old_tool_uri))
+g.add((procedure_uri, URIRef("http://ontology/usesTool"), tool_uri))
+```
+
+### To remove data:
+Simply use the 'remove' function.
+Example: 
+```python
+g.remove((procedure_uri, URIRef("http://ontology/usesTool"), tool_uri))
+```
+
+### To add rules:
+Open the owl ontology in python, then run your new SWRL rule. After this, you will need to re-synchronize your reasoner.
+Example: : If a procedure uses a tool, that tool must also be used in at least one step
+```python
+rule = Imp()
+rule.set_as_rule("""Procedure(?p) ^ uses_tool(?t) -> Step(?s) ^ uses_tool(?t)""")
+```
+
+## Running the Application
+### Command-line:
+To run the scripts to generate the OWL files execute the following via the commandline:
+`python scripts/load_data.py`
+`python scripts/query_ontology.py`
+
+### Flask Application:
+Ensure you have Flask installed (`pip install flask`).
+To start the Flask application, run:
+`flask run`
+Then access the application on `localhost:5000` or `127.0.0.1:5000` in a web browser.    
+
+The webpage allows for searching by key words in procedure titles, as well as filtering by parts, tools and categories. Beyond this, one can also browse the categories independently, mirroring what is done on the iFixit website.
