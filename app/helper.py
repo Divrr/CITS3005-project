@@ -59,28 +59,20 @@ def propagate_category_count(category, category_counts):
         propagate_category_count(parent, category_counts)
 
 def build_category_hierarchy(categories_by_title):
-    # initialise hierarchy
+    # Find all top-level categories (categories without parents)
     hierarchy = {}
-
-    # Build parent-child relationships
     for category in categories_by_title.values():
-        category_title = category.title
-        parent_titles = [parent.title for parent in category.subcategory_of]
-        if not parent_titles:
-            # Top-level category
-            if category_title not in hierarchy:
-                hierarchy[category_title] = {'category': category, 'subcategories': {}}
-        else:
-            for parent_title in parent_titles:
-                parent = categories_by_title.get(parent_title)
-                if parent:
-                    if parent_title not in hierarchy:
-                        hierarchy[parent_title] = {'category': parent, 'subcategories': {}}
-                    if 'subcategories' not in hierarchy[parent_title]:
-                        hierarchy[parent_title]['subcategories'] = {}
-                    hierarchy[parent_title]['subcategories'][category_title] = {'category': category, 'subcategories': {}}
-
+        if not category.subcategory_of:
+            hierarchy[category.title] = build_subtree(category, categories_by_title)
     return hierarchy
+
+def build_subtree(category, categories_by_title):
+    subtree = {'category': category, 'subcategories': {}}
+    for subcategory in categories_by_title.values():
+        if category in subcategory.subcategory_of:
+            subtree['subcategories'][subcategory.title] = build_subtree(subcategory, categories_by_title)
+    return subtree
+
 
 def get_all_subcategories(category):
     """Recursively get all subcategories of a given category."""
