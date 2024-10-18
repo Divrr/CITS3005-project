@@ -93,13 +93,16 @@ def select_all_selected_category_titles(selected_categories):
         for cat_title in selected_categories:
             category = onto.search_one(title=cat_title)
             if category:
+                # Add the selected category itself
+                all_selected_category_titles.add(category.title.lower())
+                # Add its subcategories
                 subcategories = get_all_subcategories(category)
-                # Collect titles of all subcategories
                 for subcat in subcategories:
                     all_selected_category_titles.add(subcat.title.lower())
             else:
                 app.logger.warning(f"Category with title '{cat_title}' not found.")
     return all_selected_category_titles
+
 
 def find_all_matching_procedures(query, selected_categories, selected_tools, selected_parts):
     matching_procedures = []
