@@ -48,7 +48,13 @@
             {% else %}
                 <p class="text-center text-gray-600">No procedures match your search criteria.</p>
             {% endif %}
+            <div class="mt-10 text-center">
+                <a href="{{ url_for('categories_home') }}" class="btn btn-primary text-xl">
+                    Browse Categories
+                </a>
+            </div>
         </div>
+        
         
         <!-- Sidebar -->
         <div class="drawer-side">
