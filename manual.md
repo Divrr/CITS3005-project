@@ -1,5 +1,5 @@
 
-# User Manual for iFixit Knowledge Graph Application#
+# User Manual for iFixit Knowledge Graph Application
 The application built is designed to create a knowledge graph and ontology around iFixit instruction manuals.  It allows users to browse procedures, tools, and items while enforcing certain relationships and querying capabilities. This manual provides an overview of the ontology, key queries, and instructions on how to interact with the knowledge graph.
 
 ## Overview of the Schema and Ontology Rules
