@@ -2,35 +2,35 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<nav class="navbar p-4 shadow-md flex justify-between items-center">
+    <a href="{{ url_for('index') }}" class="flex gap-2 w-20">
+        <img src="https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-96x96.png" alt="icon" class="w-10 h-fit object-fit">
+        <p class="text-xl font-bold whitespace-nowrap items-center hidden lg:flex">iFixit KG</p>
+    </a>
+    <div class="container mx-auto w-1/2 md:flex items-center justify-center gap-2 join">
+        {{ form.query(class="input input-bordered join-item w-full", placeholder="Search") }}
+        <button type="submit" class="btn join-item btn-primary">
+            <img src="{{ url_for('static', filename='src/search.svg') }}" alt="search" class="w-4 h-4 mr-2">
+        </button>
+    </div>
+</nav>
+
 <div class="container mx-auto p-6">
     {% if parent %}
         <!-- Back to Parent Category -->
-        <a href="{{ url_for('category_detail', category_title=parent.title) }}" class="text-blue-500 hover:underline mb-4 inline-block">
+        <a href="{{ url_for('category_detail', category_title=parent.title) }}" class="text-blue-500 hover:underline mb-4 inline-block float-start">
             &larr; Back to {{ parent.title }}
         </a>
-    {% else %}
-        <!-- Back to Home -->
-        <a href="{{ url_for('index') }}" class="text-blue-500 hover:underline mb-4 inline-block">
-            &larr; Back to Home
-        </a>
-        <h1 class="text-4xl font-bold mb-6 text-center text-gray-800">Categories</h1>
     {% endif %}
+    <h1 class="text-4xl font-bold text-center text-gray-800 my-12">Categories</h1>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {% for category in categories %}
-            <a href="{{ url_for('category_detail', category_title=category.title) }}" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col items-center justify-between min-h-[300px]">
-                <!-- Conditionally Render Image Only If Available -->
-                {% if category.url and category.url.strip() %}
-                    <img src="{{ category.url }}" alt="{{ category.title }}" class="h-24 w-24 object-cover rounded mb-4">
+            <a href="{{ url_for('category_detail', category_title=category.title) }}" class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col items-center justify-center min-h-[300px]">
+                <h2 class="text-xl font-semibold text-center">{{ category.title }}</h2>
+                {% if category_counts %}
+                    <p class="text-center text-gray-600 mt-2">{{ category_counts.get(category.title, 0) }} Guides</p>
                 {% endif %}
-                
-                <!-- Category Title and Guide Count -->
-                <div class="flex flex-col items-center">
-                    <h2 class="text-xl font-semibold text-center">{{ category.title }}</h2>
-                    {% if category_counts %}
-                        <p class="text-center text-gray-600 mt-2">{{ category_counts.get(category.title, 0) }} Guides</p>
-                    {% endif %}
-                </div>
             </a>
         {% endfor %}
     </div>
